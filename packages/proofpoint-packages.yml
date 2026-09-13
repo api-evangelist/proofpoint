@@ -1,0 +1,134 @@
+generated: '2026-09-13'
+method: searched
+source: 'PyPI, NuGet and Maven Central registry metadata endpoints plus the pfptcommunity
+  GitHub organization (github.com/pfptcommunity, "Proofpoint GitHub Community — a
+  dynamic mix of passionate Proofpoint team members and dedicated enthusiasts")'
+note: 'Proofpoint ships no SDKs from a proofpoint.com developer portal. Every client
+  library below is published from the pfptcommunity GitHub organization, which
+  Proofpoint owns and describes as its own community org, and each one is published to
+  a public registry under a Proofpoint product name. They are marked official: true on
+  that basis and the basis is recorded here rather than assumed. The com.proofpoint.*
+  artifacts on Maven Central are the Proofpoint Platform internal Java service
+  framework, NOT clients for any Proofpoint API, and are deliberately excluded.'
+packages:
+- name: psat-api
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/psat-api/
+  repository: https://github.com/pfptcommunity/psat-api-python
+  covers: proofpoint-psat-results
+  version: 4.2.0
+  published: '2026-07-24'
+  note: 'Typed Python client for the Proofpoint ZenGuide Results API. Models the v0.3.0
+    REST API; the README records that Proofpoint ended support for the v0.1.0 endpoints
+    on 2023-09-30 and that v0.2.0 was never a public release.'
+- name: ser-admin-api
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/ser-admin-api/
+  repository: https://github.com/pfptcommunity/ser-admin-api-python
+  covers: proofpoint-secure-email-relay
+  version: 0.3.0
+  published: '2026-07-24'
+  note: Typed Python client for the Proofpoint Secure Email Relay Admin API.
+- name: ser-mail-api
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/ser-mail-api/
+  repository: https://github.com/pfptcommunity/ser-mail-api-python
+  covers: proofpoint-secure-email-relay
+  version: 2.0.6
+  published: '2025-09-04'
+  homepage: https://api-docs.ser.proofpoint.com/docs/email-submission
+- name: tap-api
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/tap-api/
+  repository: https://github.com/pfptcommunity/tap-api-python
+  covers: proofpoint-tap
+  version: 1.1.1
+  published: '2025-01-27'
+  homepage: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation
+- name: et-api
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/et-api/
+  repository: https://github.com/pfptcommunity/et-api-python
+  covers: proofpoint-et-intelligence
+  version: 1.0.2
+  published: '2023-09-27'
+  homepage: https://apidocs.emergingthreats.net
+  note: 'Oldest first-party client in the set — nearly three years without a release
+    while the ET Intelligence API it wraps remains a sold product. The strongest
+    decay signal in this repo.'
+- name: Proofpoint.SecureEmailRelay.Mail
+  registry: nuget
+  language: csharp
+  official: true
+  url: https://www.nuget.org/packages/Proofpoint.SecureEmailRelay.Mail
+  repository: https://github.com/pfptcommunity/ser-mail-api-csharp
+  covers: proofpoint-secure-email-relay
+  version: 1.1.3
+  published: '2025-09-04'
+- name: io.pfpt.ser:ser-mail-api
+  registry: maven
+  language: java
+  official: true
+  url: https://repo1.maven.org/maven2/io/pfpt/ser/ser-mail-api/
+  repository: https://github.com/pfptcommunity/ser-mail-api-java
+  covers: proofpoint-secure-email-relay
+  version: 1.0.2
+  published: '2025-09-04'
+  note: Read from maven-metadata.xml (latest 1.0.2, lastUpdated 20250904194134). The
+    search.maven.org index returns no rows for group io.pfpt.ser.
+- name: et-api-php
+  registry: null
+  language: php
+  official: true
+  url: https://github.com/pfptcommunity/et-api-php
+  repository: https://github.com/pfptcommunity/et-api-php
+  covers: proofpoint-et-intelligence
+  version: null
+  published: null
+  note: 'PHP library for the Emerging Threats API. Checked, nothing to record: it is
+    not on Packagist (packagist.org search for both "proofpoint" and "pfptcommunity"
+    returns zero results) and carries no tagged release, so a PHP consumer must vendor
+    it from the default branch and cannot pin a version.'
+- name: senderstats
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/senderstats/
+  repository: https://github.com/pfptcommunity/senderstats
+  covers: null
+  version: 3.0.0
+  published: '2025-12-24'
+  note: Analysis tool over Smart Search exports rather than an API client; listed for
+    completeness because it is first-party and registry-published.
+- name: senderstats-core
+  registry: pypi
+  language: python
+  official: true
+  url: https://pypi.org/project/senderstats-core/
+  repository: https://github.com/pfptcommunity/senderstats-core
+  covers: null
+  version: 3.0.1
+  published: '2026-03-31'
+coverage:
+  apis_with_a_client:
+  - proofpoint-tap
+  - proofpoint-et-intelligence
+  - proofpoint-psat-results
+  - proofpoint-secure-email-relay
+  apis_without_a_client:
+  - proofpoint-threat-protection-reports
+  - proofpoint-essentials-siem
+  - proofpoint-pod-log
+  note: 'The newest Proofpoint API — the OAuth-based Threat Protection Dashboard
+    Reports API — has no first-party client in any language, and neither does the PoD
+    log stream.'

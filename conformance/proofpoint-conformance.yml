@@ -1,0 +1,122 @@
+generated: '2026-09-13'
+method: searched
+source: 'Proofpoint public API documentation and https://www.proofpoint.com/us/legal/trust/product-certifications'
+note: 'Standards this contract DECLARES about itself, plus the compliance regime
+  Proofpoint publishes. Nothing here is inferred from the product category — each entry
+  points at the exact place the claim is made. Where a standard is common in this market
+  and Proofpoint does NOT implement it, that is recorded as conforms: false rather than
+  omitted, because in a threat-intelligence market the absence of STIX/TAXII is a real
+  integration fact.'
+conformance:
+- id: oauth2
+  name: OAuth 2.0 client credentials (RFC 6749 §4.4)
+  conforms: true
+  evidence: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/Reports_API
+  detail: 'POST to https://auth.proofpoint.com/v1/token returns {"access_token":"...","token_type":"Bearer","expires_in":3600}
+    — a conformant client-credentials token response.'
+  applies_to: [proofpoint-threat-protection-reports, proofpoint-secure-email-relay]
+- id: oauth2-discovery
+  name: RFC 8414 OAuth 2.0 Authorization Server Metadata
+  conforms: false
+  evidence: https://auth.proofpoint.com/.well-known/oauth-authorization-server
+  detail: 404. The authorization server publishes no metadata document, so the token
+    endpoint is discoverable only from prose.
+- id: http-basic
+  name: RFC 7617 HTTP Basic authentication
+  conforms: true
+  evidence: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/SIEM_API
+  detail: '"Each request MUST use the HTTP Basic Authorization method" with a service
+    principal as username and secret as password.'
+  applies_to: [proofpoint-tap, proofpoint-essentials-siem]
+- id: rfc5424
+  name: RFC 5424 Syslog Protocol
+  conforms: true
+  evidence: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/SIEM_API
+  detail: 'The SIEM API''s syslog rendering is declared conformant to RFC 5424 in the
+    contract itself: "Events are produced in the syslog format, as described by RFC 5424.
+    All data is contained within the structured-data field. The freeform MSG field is
+    blank." Individual events are CRLF-delimited. This is the domain-standard signature
+    for this market — a SIEM can ingest the stream with no bespoke parser.'
+  domain_standard: true
+  market: security operations / SIEM ingestion
+- id: iso8601
+  name: ISO 8601 date and interval notation
+  conforms: true
+  evidence: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/SIEM_API
+  detail: Time windows are expressed as ISO 8601 intervals (2016-05-01T12:00:00Z/2016-05-01T13:00:00Z,
+    PT30M/2016-05-01T12:30:00Z) and all returned timestamps are UTC.
+- id: rfc9457
+  name: RFC 9457 Problem Details for HTTP APIs
+  conforms: false
+  evidence: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/Campaign_API
+  detail: No application/problem+json envelope on any surface; errors are HTTP status
+    plus prose.
+- id: pagination
+  name: Documented pagination
+  conforms: partial
+  evidence: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/Campaign_API
+  detail: 'page/size on two endpoints only; SIEM explicitly states "No paging support is
+    available" and bounds volume by a one-hour time window instead.'
+- id: idempotency
+  name: Idempotency keys
+  conforms: false
+  evidence: conventions/proofpoint-conventions.yml
+  detail: No Idempotency-Key mechanism on any surface. Recorded as na rather than a
+    failure in conventions/ because the public surface is read-only apart from SER.
+- id: openapi
+  name: OpenAPI specification published
+  conforms: false
+  evidence: well-known/proofpoint-well-known.yml
+  detail: 'No OpenAPI/Swagger document exists on any Proofpoint host. Probed:
+    tap-api-v2.proofpoint.com, threatprotection-api.proofpoint.com, api.emergingthreats.net,
+    mail.ser.proofpoint.com, api-docs.ser.proofpoint.com and
+    proofpoint.securityeducation.com against /openapi.json, /openapi.yaml, /swagger.json,
+    /v2/api-docs, /v3/api-docs, /api-docs, /docs, /redoc and /swagger-ui/index.html — all
+    404 or an HTML shell.'
+- id: apidoc
+  name: apiDoc 0.3.0 machine-readable API description
+  conforms: true
+  evidence: https://proofpoint.securityeducation.com/api/reporting/documentation/api_project.json
+  detail: 'The ZenGuide Results API publishes a genuine apiDoc description (api_project.json
+    names "Proofpoint Security Awareness Training Results API", apidoc 0.3.0, generator
+    apidoc 0.17.7) alongside api_data.json carrying the endpoint definitions. It is the
+    only machine-readable API description Proofpoint publishes anywhere, and it is saved
+    verbatim in apidoc/.'
+  applies_to: [proofpoint-psat-results]
+- id: stix
+  name: STIX 2.x structured threat information expression
+  conforms: false
+  evidence: https://apidocs.emergingthreats.net/
+  detail: 'The ET Intelligence Query API returns vendor-shaped JSON across its 36
+    endpoints and declares no STIX object model. For a threat-intelligence product this
+    is the notable domain-standard absence: a consumer with a STIX/TAXII pipeline needs a
+    bespoke connector.'
+  domain_standard: true
+  market: threat intelligence
+- id: taxii
+  name: TAXII 2.x threat intelligence transport
+  conforms: false
+  evidence: https://apidocs.emergingthreats.net/
+  detail: No TAXII collection, discovery or poll endpoint is documented on api.emergingthreats.net.
+- id: asyncapi
+  name: AsyncAPI specification for the event surface
+  conforms: false
+  evidence: https://help.proofpoint.com/Proofpoint_on_Demand/Log_API
+  detail: 'Proofpoint on Demand has a genuine WebSocket event stream (logstream.proofpoint.com
+    resolves and returns 400 to a plain HTTPS GET on /v1/stream, i.e. it is live and
+    expects an upgrade) but publishes no AsyncAPI document, and the article describing it
+    302s to a customer login.'
+compliance:
+  source: https://www.proofpoint.com/us/legal/trust/product-certifications
+  certifications:
+  - ISO/IEC 42001
+  - ISO/IEC 27001
+  - SOC 2
+  - FedRAMP
+  - IRAP
+  - ENS (Spain)
+  - EU-U.S. / UK / Swiss-U.S. Data Privacy Framework
+  - PCI DSS (Proofpoint Archive)
+  - FIPS 140 validated cryptographic modules
+  - CSA STAR Registry
+  see: security/proofpoint-trust-center.yml

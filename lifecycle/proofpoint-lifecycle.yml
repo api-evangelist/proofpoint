@@ -1,0 +1,114 @@
+generated: '2026-09-13'
+method: searched
+source: 'help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/*,
+  github.com/pfptcommunity/psat-api-python, probes of proofpoint.statuspage.io and
+  status.proofpoint.com'
+note: 'Proofpoint publishes version numbers and, in two places, concrete end-of-support
+  facts — but no deprecation POLICY, no Sunset/Deprecation header commitment, no SLA
+  document and no publicly reachable status page. The deprecations below are events
+  Proofpoint announced, not a policy it has committed to; that is why no Deprecation
+  pointer is wired in apis.yml.'
+versioning:
+  style: path segment
+  apis:
+  - api: proofpoint-tap
+    current: v2
+    previous: '1.5'
+    change_notes: The SIEM API documentation carries a "Changes from version 1.5 of the
+      SIEM API" section, which is the closest thing on the estate to a migration guide.
+  - api: proofpoint-threat-protection-reports
+    current: v1
+  - api: proofpoint-et-intelligence
+    current: v1
+  - api: proofpoint-psat-results
+    current: v0.3.0
+    previous: [v0.1.0, v0.2.0]
+  - api: proofpoint-essentials-siem
+    current: v2
+deprecation_policy:
+  published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  note: No deprecation policy, notice period or Sunset/Deprecation response header is
+    published on any surface.
+deprecations:
+- api: proofpoint-psat-results
+  version: v0.1.0
+  status: end-of-support
+  date: '2023-09-30'
+  source: https://github.com/pfptcommunity/psat-api-python
+  evidence: 'The first-party client README records: "Proofpoint notified they will be
+    ending support of the v0.1.0 endpoints on September 30, 2023."'
+- api: proofpoint-psat-results
+  version: v0.2.0
+  status: never-released
+  source: https://github.com/pfptcommunity/psat-api-python
+  evidence: '"Support also confirmed v0.2.0 was never meant to be a public release."'
+- api: proofpoint-tap
+  version: '1.5'
+  status: superseded
+  by: v2
+  source: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/SIEM_API
+changelog:
+  published: false
+  note: 'No dated, machine-readable or even HTML changelog exists for any Proofpoint API.
+    The MindTouch article footers carry a "Last updated" stamp but no entries. The
+    CHANGELOG.md in EmergingThreats/query-api-docs is the upstream Slate documentation
+    theme''s changelog, not the ET Intelligence API''s, and is deliberately not cited as
+    one. Threat Insight Dashboard release notes exist at
+    help.proofpoint.com/Threat_Insight_Dashboard/Release_Notes but 302 to a customer
+    login.'
+  probes:
+  - url: https://help.proofpoint.com/Threat_Insight_Dashboard/Release_Notes
+    result: redirects to https://help.proofpoint.com/Special:Userlogin (gated)
+status_page:
+  published: false
+  note: 'No publicly reachable Proofpoint status page was found. proofpoint.statuspage.io
+    resolves but the page is retired — it redirects to /inactive and its
+    /api/v2/summary.json returns 401 "Your page is inactive". status.proofpoint.com,
+    trust.proofpoint.com and status.emergingthreats.net do not resolve. Third-party
+    monitors (StatusGator, IsDown) describe an official Proofpoint status page with 20
+    components behind it, but it is not anonymously reachable, so no StatusPage pointer
+    is wired.'
+  probes:
+  - url: https://proofpoint.statuspage.io/
+    status: 200
+    result: redirects to /inactive
+  - url: https://proofpoint.statuspage.io/api/v2/summary.json
+    status: 401
+    result: 'Your page is inactive. Please include an API key to access this resource.'
+  - url: https://status.proofpoint.com/
+    status: 0
+    result: DNS does not resolve
+sla:
+  published: false
+  note: No public SLA or uptime commitment is published for any API.
+support:
+  channels:
+  - name: Support Services
+    url: https://www.proofpoint.com/us/support-services
+  - name: Proofpoint Community
+    url: https://proofpoint.my.site.com/community/s/
+  - name: Emerging Threats support
+    email: support@emergingthreats.net
+documentation_access:
+  note: 'A real and unusual pattern worth recording: the individual API reference articles
+    on help.proofpoint.com are anonymously readable, but the SECTION INDEXES above them
+    are not. /Threat_Insight_Dashboard and /Essentials/Additional_Resources/API_Documentation
+    both 302 to Special:Userlogin while their leaf articles return 200. The documentation
+    is therefore public but not browsable — reachable only if you already know the URL.'
+  probes:
+  - url: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation
+    status: 200
+  - url: https://help.proofpoint.com/Threat_Insight_Dashboard
+    status: 200
+    result: redirected to Special:Userlogin
+  - url: https://help.proofpoint.com/Essentials/Additional_Resources/API_Documentation
+    status: 200
+    result: redirected to Special:Userlogin
+  - url: https://help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API
+    status: 200
+  - url: https://help.proofpoint.com/Proofpoint_on_Demand/Log_API
+    status: 200
+    result: redirected to Special:Userlogin

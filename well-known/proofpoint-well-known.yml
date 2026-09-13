@@ -1,0 +1,472 @@
+generated: '2026-09-13'
+method: probed
+source: direct HTTPS GET of each named /.well-known/ path on every host in this record (registrable domain
+  + www, every apis[].baseURL host, every docs/console host, and the auth host auth.proofpoint.com named
+  by the Reports API docs)
+note: 'Proofpoint serves NO /.well-known/ discovery document on any host in this record. Four hosts answer
+  a non-404 on every probed path and none of them is a document: help.proofpoint.com is a MindTouch /
+  NICE CXone Expert tenant whose 200 on /.well-known/security.txt returns NICE''s security.txt rather
+  than Proofpoint''s; api-docs.ser.proofpoint.com and proofpoint.securityeducation.com are single-page
+  apps whose catch-all returns the app HTML shell; results.us.securityeducation.com 403s every anonymous
+  request. Every other host 404s on every path. NO WellKnown, APICatalog or SecurityTxt pointer is emitted
+  from this file: a recorded absence is not a presence.'
+hosts:
+- host: www.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: help.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/plain; charset=utf-8
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  note: MindTouch / NICE CXone Expert tenant. Every /.well-known/* path answers 200; /.well-known/security.txt
+    returns the PLATFORM's security.txt (Contact mailto:ExpertSecurity@nice.com, Policy https://expert-help.nice.com/Admin/Contact/Disclosure)
+    and the rest return the wiki HTML shell. Not a Proofpoint document. Treated as a miss.
+- host: tap-api-v2.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: threatprotection-api.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: api.emergingthreats.net
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: apidocs.emergingthreats.net
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: mail.ser.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: api-docs.ser.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  note: Single-page app catch-all. Every /.well-known/* path answers 200 with the same 6,350-byte 'SER
+    API Documentation' HTML shell. No document. Treated as a miss.
+- host: us1.proofpointessentials.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: threatinsight.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: proofpoint.securityeducation.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    soft_200: true
+    content_type: text/html; charset=utf-8
+  note: Application catch-all. Every unknown path answers 200 with the app HTML shell. No document. Treated
+    as a miss.
+- host: auth.proofpoint.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: us-siem.proofpointessentials.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: results.us.securityeducation.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 403
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    file: null
+  - path: /.well-known/api-catalog
+    status: 403
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 403
+    file: null
+  - path: /.well-known/agent.json
+    status: 403
+    file: null
+  note: API host returns 403 to unauthenticated requests on every path, including /.well-known/*. Not
+    a document, and not evidence of absence either.
+summary:
+  hosts_probed: 15
+  paths_per_host: 8
+  real_documents_found: 0
+  soft_200_or_403_hosts:
+  - help.proofpoint.com
+  - api-docs.ser.proofpoint.com
+  - proofpoint.securityeducation.com
+  - results.us.securityeducation.com
+  oauth_metadata: The Threat Protection Reports API documents an OAuth 2.0 client-credentials token endpoint
+    at https://auth.proofpoint.com/v1/token, but auth.proofpoint.com publishes neither /.well-known/oauth-authorization-server
+    nor /.well-known/openid-configuration (404 on both), so the authorization server is not machine-discoverable.

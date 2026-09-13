@@ -1,0 +1,50 @@
+generated: '2026-09-13'
+method: searched
+source: https://github.com/pfptcommunity
+note: 'Proofpoint publishes no installable, versioned CLI binary. What exists are two
+  shell query tools and one pip-installed analysis command, all in the pfptcommunity
+  GitHub organization. They are recorded here as a real but thin command-line surface;
+  none is distributed through a package manager as a binary and neither shell tool has
+  a tagged release.'
+clis:
+- name: tap-api-cli
+  description: Proofpoint Targeted Attack Protection API command line query tool.
+  language: shell
+  repository: https://github.com/pfptcommunity/tap-api-cli
+  install:
+  - method: git-clone
+    command: git clone https://github.com/pfptcommunity/tap-api-cli
+  covers: proofpoint-tap
+  last_pushed: '2025-01-10'
+  license: MIT
+  registry: null
+  version: null
+  version_note: no tagged release; clone-from-default-branch only
+- name: et-api-cli
+  description: Emerging Threats API command line query tool.
+  language: shell
+  repository: https://github.com/pfptcommunity/et-api-cli
+  install:
+  - method: git-clone
+    command: git clone https://github.com/pfptcommunity/et-api-cli
+  covers: proofpoint-et-intelligence
+  last_pushed: '2022-10-05'
+  license: MIT
+  registry: null
+  version: null
+  version_note: no tagged release; four years without a push
+- name: senderstats
+  description: Sender analyzer — processes Smart Search results and identifies top senders.
+  language: python
+  repository: https://github.com/pfptcommunity/senderstats
+  install:
+  - method: pip
+    command: pip install senderstats
+  covers: null
+  registry: pypi
+  version: 3.0.0
+  published: '2025-12-24'
+  license: MIT
+gaps:
+- 'No CLI covers the Threat Protection Dashboard Reports API, Secure Email Relay, the
+  ZenGuide Results API, Proofpoint Essentials or the PoD log stream.'

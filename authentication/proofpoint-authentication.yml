@@ -1,0 +1,89 @@
+generated: '2026-09-13'
+method: searched
+source: 'Proofpoint public API documentation: help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/*,
+  help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API,
+  apidocs.emergingthreats.net, proofpoint.securityeducation.com/api/reporting/documentation/'
+note: 'Derived from documentation, not from a specification — Proofpoint publishes no
+  OpenAPI securitySchemes anywhere. Three distinct and non-interchangeable auth models
+  are in production across the estate; a client written for one will not work against
+  another.'
+summary:
+  schemes_count: 3
+  oauth2: true
+  oidc: false
+  mtls: false
+  scopes_documented: false
+schemes:
+- id: tap-basic
+  type: http
+  scheme: basic
+  applies_to:
+  - proofpoint-tap
+  - proofpoint-essentials-siem
+  credential: 'HTTP Basic with a "service principal" as the username and a "secret" as
+    the password. Both are minted by an administrator on the TAP (or Essentials)
+    Settings page; there is no self-service developer signup.'
+  transport: TLS required ("Each request MUST use SSL")
+  methods_allowed: GET for every endpoint except /v2/url/decode, which is POST
+  anonymous_allowed:
+    endpoint: /v2/url/decode
+    note: 'The URL Decoder documentation says credentials MAY be used — the endpoint is
+      documented with and without --user, making it the one anonymously callable
+      Proofpoint API operation. Unauthenticated calls are throttled on a shared pool.'
+  docs: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/SIEM_API
+- id: threatprotection-oauth2
+  type: oauth2
+  flow: clientCredentials
+  applies_to:
+  - proofpoint-threat-protection-reports
+  token_endpoint: https://auth.proofpoint.com/v1/token
+  token_type: Bearer
+  expires_in: 3600
+  header: 'Authorization: Bearer <token>'
+  credential: API key and secret generated in the Threat Protection admin console
+    ("generate a new API key and secret for the Threat Protection API").
+  scopes: []
+  scopes_note: 'No scopes are documented. The token response carries only access_token,
+    token_type and expires_in, so there is no published permission surface to model —
+    which is why no scopes/ artifact was written.'
+  discovery:
+    oauth_authorization_server: 404
+    openid_configuration: 404
+    note: auth.proofpoint.com publishes no authorization-server metadata; the token
+      endpoint is known only from the prose in the Reports API documentation.
+  docs: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/Reports_API
+- id: et-api-key
+  type: apiKey
+  in: header
+  name: Authorization
+  applies_to:
+  - proofpoint-et-intelligence
+  credential: 'A single opaque API key, sent raw in the Authorization header with no
+    scheme prefix: "Authorization: SECRETKEY". Keys are issued at
+    https://etadmin.proofpoint.com/api-access to customers who have paid for API access.'
+  docs: https://apidocs.emergingthreats.net/
+- id: psat-api-key
+  type: apiKey
+  applies_to:
+  - proofpoint-psat-results
+  credential: 'A regional API key passed to the Results API. The first-party Python
+    client is constructed as PSATClient(Region.US, "<api_key>"), and the published
+    apiDoc description carries a dedicated Authentication entry.'
+  docs: https://proofpoint.securityeducation.com/api/reporting/documentation/
+- id: ser-oauth
+  type: oauth2
+  flow: clientCredentials
+  applies_to:
+  - proofpoint-secure-email-relay
+  credential: 'Secure Email Relay separates a Configuration Token from an Email
+    Submission Token; the api-docs.ser.proofpoint.com navigation exposes both as
+    distinct authentication routes. The documentation renders client-side and the token
+    endpoints could not be read without executing the app, so the exact endpoints are
+    recorded as unread rather than guessed.'
+  docs: https://api-docs.ser.proofpoint.com/authentication/email-submission-token
+gaps:
+- 'No self-service credential issuance on any surface: every key is minted by an
+  administrator inside a paid tenant, so an agent or developer cannot obtain access
+  without an existing Proofpoint contract.'
+- No OAuth scope reference is published for either OAuth surface.
+- No authorization-server metadata document is served on auth.proofpoint.com.

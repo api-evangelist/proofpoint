@@ -1,0 +1,206 @@
+generated: '2026-09-13'
+method: derived
+source: 'apidoc/proofpoint-psat-results-api_data.json (verbatim, provider-published) and
+  the documented endpoint surfaces at apidocs.emergingthreats.net and
+  help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/*'
+note: 'Derived from published endpoint shapes and the one machine-readable description
+  Proofpoint ships, NOT from an OpenAPI $ref graph — there is no OpenAPI. Relationships
+  are recorded only where the documentation names the joining identifier explicitly (a
+  threatId path or query parameter, a campaignId, an MD5, a Suricata SID). Field-level
+  schemas are not asserted.'
+entities:
+- name: Threat
+  api: proofpoint-tap
+  id_field: threatId
+  id_shape: opaque string
+  source_endpoints:
+  - '/v2/threat/summary/<threatId>'
+  - '/v2/forensics?threatId=<threatId>'
+  relationships:
+  - has_many: Forensics
+    via: threatId
+  - belongs_to: Campaign
+    via: campaignId
+    note: A threat may be associated with a campaign; Forensics accepts
+      includeCampaignForensics=true to fold campaign evidence into a threat response.
+- name: Campaign
+  api: proofpoint-tap
+  id_field: id
+  id_shape: UUID (e.g. e144426d-7bcd-4695-98a7-c9f6551f3d48)
+  source_endpoints:
+  - '/v2/campaign/ids'
+  - '/v2/campaign/<campaignId>'
+  fields_observed: [id, lastUpdatedAt, notable, verticallyTargeted]
+  relationships:
+  - has_many: Threat
+    via: campaignId
+  - has_many: Forensics
+    via: campaignId
+- name: Forensics
+  api: proofpoint-tap
+  source_endpoints:
+  - '/v2/forensics'
+  relationships:
+  - belongs_to: Threat
+    via: threatId
+  - belongs_to: Campaign
+    via: campaignId
+- name: MessageEvent
+  api: proofpoint-tap
+  source_endpoints:
+  - '/v2/siem/messages/blocked'
+  - '/v2/siem/messages/delivered'
+  - '/v2/siem/all'
+  - '/v2/siem/issues'
+  time_fields: [messageTime, queryEndTime]
+  relationships:
+  - has_many: Threat
+    via: threatsInfoMap
+- name: ClickEvent
+  api: proofpoint-tap
+  source_endpoints:
+  - '/v2/siem/clicks/blocked'
+  - '/v2/siem/clicks/permitted'
+  - '/v2/siem/all'
+  - '/v2/siem/issues'
+  time_fields: [clickTime]
+  relationships:
+  - has_one: Threat
+    via: threatsInfoMap
+- name: Person
+  api: proofpoint-tap
+  source_endpoints:
+  - '/v2/people/vap'
+  - '/v2/people/top-clickers'
+  note: Very Attacked People and top-clicker rosters over a rolling window (window=90).
+- name: EncodedURL
+  api: proofpoint-tap
+  source_endpoints:
+  - '/v2/url/decode'
+  fields_observed: [encodedUrl, decodedUrl]
+  note: URL Defense v1 and v2 rewrite formats are both accepted.
+- name: Domain
+  api: proofpoint-et-intelligence
+  id_field: domain
+  source_endpoints:
+  - '/v1/domains/{domain}/reputation'
+  - '/v1/domains/{domain}/urls'
+  - '/v1/domains/{domain}/samples'
+  - '/v1/domains/{domain}/ips'
+  - '/v1/domains/{domain}/events'
+  - '/v1/domains/{domain}/nameservers'
+  - '/v1/domains/{domain}/geoloc'
+  - '/v1/domains/{domain}/whois'
+  relationships:
+  - has_many: IP
+    via: /v1/domains/{domain}/ips
+  - has_many: Sample
+    via: /v1/domains/{domain}/samples
+  - has_many: Event
+    via: /v1/domains/{domain}/events
+- name: IP
+  api: proofpoint-et-intelligence
+  id_field: ip
+  source_endpoints:
+  - '/v1/ips/{ip}/reputation'
+  - '/v1/ips/{ip}/domains'
+  - '/v1/ips/{ip}/samples'
+  - '/v1/ips/{ip}/urls'
+  - '/v1/ips/{ip}/events'
+  - '/v1/ips/{ip}/geoloc'
+  - '/v1/ips/{ip}/asn'
+  relationships:
+  - has_many: Domain
+    via: /v1/ips/{ip}/domains
+  - has_many: Sample
+    via: /v1/ips/{ip}/samples
+- name: Sample
+  api: proofpoint-et-intelligence
+  id_field: md5
+  id_shape: MD5 hash
+  source_endpoints:
+  - '/v1/samples/{md5}'
+  - '/v1/samples/{md5}/connections'
+  - '/v1/samples/{md5}/dns'
+  - '/v1/samples/{md5}/http'
+  - '/v1/samples/{md5}/events'
+  relationships:
+  - has_many: Domain
+    via: /v1/samples/{md5}/dns
+  - has_many: IP
+    via: /v1/samples/{md5}/connections
+- name: Signature
+  api: proofpoint-et-intelligence
+  id_field: sid
+  id_shape: Suricata/Snort signature ID
+  source_endpoints:
+  - '/v1/sids/{sid}'
+  - '/v1/sids/{sid}/summary'
+  - '/v1/sids/{sid}/text'
+  - '/v1/sids/{sid}/ips'
+  - '/v1/sids/{sid}/domains'
+  - '/v1/sids/{sid}/samples'
+  - '/v1/sids/{sid}/references'
+  relationships:
+  - has_many: IP
+    via: /v1/sids/{sid}/ips
+  - has_many: Domain
+    via: /v1/sids/{sid}/domains
+  - has_many: Sample
+    via: /v1/sids/{sid}/samples
+- name: CVE
+  api: proofpoint-et-intelligence
+  id_field: cve
+  source_endpoints:
+  - '/v1/cve/{cve}'
+  - '/v1/cve/top-trending'
+- name: MalwareFamily
+  api: proofpoint-et-intelligence
+  id_field: malware_family
+  source_endpoints:
+  - '/v1/malware/{malware_family}'
+- name: ThreatActor
+  api: proofpoint-et-intelligence
+  id_field: threatactor
+  source_endpoints:
+  - '/v1/actors/{threatactor}'
+  - '/v1/actors/{tag-name}/{report-name}'
+- name: ReputationCategory
+  api: proofpoint-et-intelligence
+  source_endpoints:
+  - '/v1/repcategories'
+  note: The controlled vocabulary behind every reputation score.
+- name: User
+  api: proofpoint-psat-results
+  source_endpoints:
+  - '/users'
+  relationships:
+  - has_many: TrainingAssignment
+  - has_many: PhishingEvent
+  - has_many: KnowledgeAssessment
+- name: KnowledgeAssessment
+  api: proofpoint-psat-results
+  source_endpoints:
+  - '/cyberstrength'
+- name: PhishAlarmReport
+  api: proofpoint-psat-results
+  source_endpoints:
+  - '/phishalarm'
+- name: PhishingEvent
+  api: proofpoint-psat-results
+  source_endpoints:
+  - '/phishing'
+  note: ThreatSim simulated-phishing campaign results.
+- name: TrainingAssignment
+  api: proofpoint-psat-results
+  source_endpoints:
+  - '/training'
+- name: TrainingEnrollment
+  api: proofpoint-psat-results
+  source_endpoints:
+  - '/trainingenrollments'
+  note: Beta in v0.1.0, carried forward in v0.2.0 of the apiDoc description.
+cross_api_note: 'The three intelligence surfaces do not share identifiers. A TAP threatId
+  does not resolve in ET Intelligence, and neither resolves a ZenGuide user. Correlating
+  a Proofpoint-detected threat with Proofpoint threat intelligence is a client-side join
+  on observables (URL, domain, hash), not a documented key relationship.'

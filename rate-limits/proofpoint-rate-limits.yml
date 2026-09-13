@@ -1,0 +1,125 @@
+generated: '2026-09-13'
+method: searched
+source: 'help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/{SIEM_API,Campaign_API,Forensics_API,People_API,Threat_API,URL_Decoder_API,Reports_API},
+  help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API,
+  apidocs.emergingthreats.net'
+limit_count: 14
+note: 'Proofpoint documents its limits unusually well for an enterprise security vendor
+  — per-endpoint numbers, the window, the exhaustion status code and the recovery
+  behaviour are all published. What it does NOT publish anywhere is a rate-limit
+  RESPONSE HEADER. No X-RateLimit-*, no RateLimit-*, no Retry-After is documented on any
+  surface, so a client cannot see how much budget it has left; it can only count its own
+  calls and wait for a 429. For an agent that is the difference between planning and
+  guessing.'
+headers:
+  documented: []
+  note: No rate-limit signalling headers are documented on any Proofpoint API.
+exhaustion:
+  status: 429
+  message: Too Many Requests
+  behavior: 'Rolling window. "The API will start returning 429 HTTP status codes until 24
+    hours past the oldest request has elapsed" — recovery is gradual as the oldest
+    request ages out, not a fixed reset instant.'
+  retry_after_header: false
+limits:
+- api: proofpoint-tap
+  endpoint: /v2/siem/clicks/permitted
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 1800
+  pool: 'clicks/permitted (separate pool — documented as deliberately isolated so this
+    endpoint can be polled more frequently)'
+- api: proofpoint-tap
+  endpoint: /v2/siem/all, /v2/siem/issues, /v2/siem/clicks/blocked, /v2/siem/messages/delivered,
+    /v2/siem/messages/blocked
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 1800
+  pool: shared across these five endpoints
+- api: proofpoint-tap
+  endpoint: /v2/campaign/ids
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 50
+- api: proofpoint-tap
+  endpoint: /v2/campaign/<campaignId>
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: null
+  note: 'Explicitly unthrottled: "no throttle limits and does not count toward the
+    request quota of the above endpoint".'
+- api: proofpoint-tap
+  endpoint: /v2/forensics?threatId=<threatId>
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 50
+- api: proofpoint-tap
+  endpoint: /v2/forensics?campaignId=<campaignId>
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 1800
+- api: proofpoint-tap
+  endpoint: /v2/people/vap
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 50
+- api: proofpoint-tap
+  endpoint: /v2/people/top-clickers
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 50
+- api: proofpoint-tap
+  endpoint: /v2/url/decode
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 1800
+- api: proofpoint-tap
+  endpoint: /v2/threat/summary/<threatId>
+  scope: per-service-credential
+  window: null
+  limit: null
+  note: 'Documented as unlimited: "The Threats API currently has no throttle limits."'
+- api: proofpoint-threat-protection-reports
+  endpoint: all
+  scope: per-api-key
+  window: 1 minute
+  limit: 10
+  note: Burst limit. Ten requests per minute per API key across the whole Reports API.
+- api: proofpoint-threat-protection-reports
+  endpoint: per report section
+  scope: per-report-section
+  window: 1 day
+  limit: 20
+  sections:
+  - Executive Summary APIs
+  - Effectiveness Report APIs
+  - Threat Landscape APIs
+  - People Report APIs
+  - Organization Report APIs
+  - Threat Objectives APIs
+  - BEC Report APIs
+  note: 'Sections are independent: exhausting Executive Summary does not block
+    Effectiveness. Twenty calls per day per section is a very low ceiling for any
+    automated consumer.'
+- api: proofpoint-et-intelligence
+  endpoint: all
+  scope: per-api-key
+  window: 1 minute
+  limit: 200
+  error_body: '{"error": "Rate limit exceeded"} returned with HTTP 429'
+  increase: contact sales or support@emergingthreats.net
+- api: proofpoint-essentials-siem
+  endpoint: /v2/siem/*
+  scope: per-service-credential
+  window: rolling 24 hours
+  limit: 1800
+  note: Same two-pool structure as TAP, with clicks/permitted isolated from the rest.
+other_quotas:
+- api: proofpoint-tap
+  kind: query-window
+  rule: A maximum of one hour of data can be requested in a single SIEM transaction, and
+    the furthest into the past that can be queried is 7 days.
+- api: proofpoint-tap
+  kind: page-size
+  rule: /v2/campaign/ids and /v2/people/top-clickers accept size (default 100, max 200)
+    and page (default 1).

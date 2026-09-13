@@ -1,0 +1,62 @@
+generated: '2026-09-13'
+method: searched
+source: 'proofpoint.com product pages, help.proofpoint.com API documentation, and direct
+  probes of every Proofpoint API host'
+status: none
+note: 'Proofpoint operates NO MCP server for its own APIs. This is the most important
+  finding in this file and it is easy to get wrong, because Proofpoint talks about MCP
+  constantly — it just talks about it as a thing it SELLS, not a thing it PUBLISHES.
+  Three distinct Proofpoint products concern MCP: "Secure MCP Across Your Enterprise" /
+  AI MCP Security (discovery, authorization and monitoring of OTHER organisations'' MCP
+  servers), Proofpoint Secure Agent Gateway (an MCP-speaking egress control point for a
+  customer''s agents, announced for Q1 2026), and Proofpoint Satori MCP Access (which
+  lets Satori agents exchange context with Microsoft Copilot and CrowdStrike Charlotte).
+  None of those is an MCP endpoint an agent can call to reach the TAP, Reports, ET
+  Intelligence, ZenGuide or SER APIs. No MCPServer pointer is wired in apis.yml, in line
+  with the rubric''s explicit rule that a vendor page about MCP as a product is not a
+  server the vendor runs for its own API.'
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: probed
+probes:
+- url: https://threatprotection-api.proofpoint.com/mcp
+  status: 404
+- url: https://tap-api-v2.proofpoint.com/openapi.json
+  status: 404
+- url: https://www.proofpoint.com/.well-known/ai-plugin.json
+  status: 404
+- url: https://www.proofpoint.com/.well-known/agent-card.json
+  status: 404
+mcp_as_product:
+- name: Proofpoint AI MCP Security
+  url: https://www.proofpoint.com/us/products/ai-mcp-security
+  kind: product
+  detail: Unifies MCP discovery, authorization and monitoring across an enterprise;
+    enforces authentication and content inspection at the MCP boundary and maintains a
+    registry of approved servers.
+- name: Proofpoint Secure Agent Gateway
+  url: https://www.proofpoint.com/us/blog/corporate-news/stop-ai-agents-losing-data
+  kind: product
+  detail: Uses MCP to connect a customer's AI agents to external data under policy.
+    Announced for Q1 2026.
+- name: Proofpoint Satori MCP Access
+  url: https://www.proofpoint.com/us/platform/satori
+  kind: product
+  detail: Connects Proofpoint Satori agents to third-party security agents (Microsoft
+    Copilot, CrowdStrike Charlotte) over MCP.
+third_party:
+- name: wyre-technology/proofpoint-mcp
+  url: https://github.com/wyre-technology/proofpoint-mcp
+  official: false
+  detail: A community MCP server for the Proofpoint TAP and Essentials APIs. Not
+    Proofpoint-published, not wired as a pointer, recorded so a later round does not
+    mistake it for a first-party surface.
+candidate_tools: []
+candidate_tools_note: 'No candidate tool list was derived. The pipeline derives candidates
+  from OpenAPI operations and Proofpoint publishes no OpenAPI; deriving them from prose
+  would produce tool definitions with no real input schemas, which is the artifact this
+  pipeline exists to avoid.'

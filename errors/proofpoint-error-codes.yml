@@ -1,0 +1,93 @@
+generated: '2026-09-13'
+method: searched
+source: 'Standard Responses tables in help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/{SIEM_API,Campaign_API,Forensics_API,People_API,URL_Decoder_API,Reports_API},
+  help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API,
+  and the Errors section of apidocs.emergingthreats.net'
+format: http-status
+rfc9457: false
+note: 'Proofpoint publishes no RFC 9457 problem+json envelope and no vendor error-code
+  registry. What every surface does publish is a "Standard Responses" table mapping HTTP
+  status to a described scenario, and the descriptions are specific enough to act on —
+  notably the 400/401/403 split, where 401 means the credential is wrong and 403 means
+  the credential is right but not entitled to that customer''s data. The ET Intelligence
+  API is the only surface that documents a machine-readable error body.'
+envelope:
+  proofpoint_tap: 'None documented. Errors are signalled by status code; no error body
+    shape is published.'
+  et_intelligence: 'JSON object with an "error" key, e.g. {"error": "Rate limit exceeded"}.'
+problem_types:
+- status: 200
+  title: Success
+  applies_to: [tap, essentials, campaign, reports]
+  detail: At least one record matching the criteria was found. For JSON format the
+    structure is always returned even when every event array is empty.
+- status: 204
+  title: No Content
+  applies_to: [tap, essentials]
+  detail: Syslog format only. No records matched the criteria; body is empty.
+  remediation: Not an error. A JSON-format request returns 200 with empty arrays instead.
+- status: 400
+  title: Bad Request
+  applies_to: [tap, essentials, campaign, forensics, people, url-decoder, reports]
+  detail: A mandatory request parameter is missing, a parameter is incorrectly formatted,
+    or the API cannot determine the identity of the customer.
+  remediation: 'Check the required time parameter (one of interval, sinceSeconds,
+    sinceTime) and that ISO 8601 values carry the format the endpoint expects — the
+    Reports API requires UTC with milliseconds, e.g. 2024-01-01T00:00:00.000Z.'
+- status: 401
+  title: Unauthorized
+  applies_to: [tap, essentials, campaign, forensics, people, url-decoder, reports, et]
+  detail: No authorization information was included, the authorization information is
+    incorrect, or the user is not authorized. On ET Intelligence, specifically "You did
+    not provide an API key."
+  remediation: Verify the service principal and secret, or that the Bearer token has not
+    expired (Reports API tokens live 3600 seconds).
+- status: 403
+  title: Forbidden
+  applies_to: [tap, essentials, reports, et]
+  detail: The user is authenticated for the service but is not authorized to access data
+    for the given customer. On ET Intelligence this also covers an elapsed subscription.
+  remediation: An entitlement problem, not a credential problem. Escalate to the account
+    administrator rather than rotating keys.
+- status: 404
+  title: Not Found
+  applies_to: [campaign, et]
+  detail: The campaign ID or threat ID does not exist. On ET Intelligence, the requested
+    action does not exist.
+- status: 408
+  title: Request Timeout
+  applies_to: [et]
+  detail: The request took too long to complete server-side.
+  remediation: Reduce the amount of information requested, or retry later.
+- status: 429
+  title: Too Many Requests
+  applies_to: [tap, essentials, url-decoder, reports, et]
+  detail: The documented throttle for the endpoint (or, on the Reports API, the per-key
+    per-minute or per-section per-day limit) has been exceeded.
+  remediation: 'Back off. Recovery is rolling — the quota frees as the oldest request
+    ages out — and no Retry-After header is returned, so the wait is not observable.'
+  see: rate-limits/proofpoint-rate-limits.yml
+- status: 500
+  title: Internal Server Error
+  applies_to: [tap, essentials, campaign, forensics, people, url-decoder, reports, et]
+  detail: The service encountered an unexpected situation and cannot give a better
+    response.
+  remediation: Retry with backoff.
+field_validation:
+  api: proofpoint-threat-protection-reports
+  note: The Reports API is the only surface that publishes per-field validation messages
+    alongside the status table.
+  examples:
+  - field: clusterId
+    condition: missing
+    message: ClusterId is required.
+  - field: start
+    condition: invalid format
+    message: Invalid startDate format. Expected ISO format (e.g. 2023-01-01T00:00:00.000Z)
+  - field: end
+    condition: invalid format
+    message: Invalid endDate format. Expected ISO format (e.g. 2023-01-01T00:00:00.000Z)
+gaps:
+- No RFC 9457 application/problem+json on any surface.
+- No stable vendor error codes — only HTTP status plus prose.
+- No error body documented for the TAP, Essentials, Reports or SER surfaces.

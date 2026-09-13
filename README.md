@@ -64,4 +64,38 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Proofpoint is a company surfaced via the API Evangelist harvest backlog (source: absent-parent) and added to the network as a stub for full-pipeline profiling.
+Proofpoint is an enterprise cybersecurity company focused on human-centric security: email
+and collaboration security, data loss prevention, insider threat management, digital
+communications governance, security awareness training and threat intelligence.
+
+## The API surface
+
+Seven APIs are documented in public and profiled here:
+
+| API | Base | Auth |
+|---|---|---|
+| Targeted Attack Protection (TAP) v2 | `https://tap-api-v2.proofpoint.com/v2` | HTTP Basic (service principal + secret) |
+| Threat Protection Dashboard Reports v1 | `https://threatprotection-api.proofpoint.com/api/v1/dash/reports` | OAuth 2.0 client credentials |
+| Emerging Threats (ET) Intelligence Query v1 | `https://api.emergingthreats.net/v1` | API key in `Authorization` |
+| Security Awareness Training (ZenGuide) Results | `https://results.us.securityeducation.com/api/reporting/v0.3.0` | API key |
+| Secure Email Relay email submission | `https://mail.ser.proofpoint.com` | OAuth 2.0 |
+| Proofpoint Essentials Threat (SIEM) | `https://us-siem.proofpointessentials.com/v2` | HTTP Basic |
+| Proofpoint on Demand (PoD) Log stream | `wss://logstream.proofpoint.com` | customer credentials (docs gated) |
+
+## What this profile found
+
+- **No machine-readable contract, with one exception.** Proofpoint publishes no OpenAPI,
+  AsyncAPI, GraphQL, gRPC or WSDL for any of the seven. The one exception is the ZenGuide
+  Results API, which ships a genuine apiDoc 0.3.0 description — saved verbatim in
+  `apidoc/`.
+- **Public documentation that is not browsable.** Individual API articles on
+  `help.proofpoint.com` return 200 anonymously; the section indexes above them redirect to
+  a customer login.
+- **Limits published, never signalled.** Per-endpoint throttles are documented in detail,
+  but no `X-RateLimit-*`, `RateLimit-*` or `Retry-After` header exists on any surface.
+- **MCP is a product here, not a surface.** Proofpoint sells AI MCP Security, the Secure
+  Agent Gateway and Satori MCP Access, and runs no MCP server for its own APIs.
+- **The `security.txt` on `help.proofpoint.com` is not Proofpoint's.** It belongs to NICE,
+  whose CXone Expert platform hosts the docs. Proofpoint's real disclosure policy is an
+  HTML page on `www.proofpoint.com`.
+

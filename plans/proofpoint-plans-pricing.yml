@@ -1,0 +1,34 @@
+generated: '2026-09-13'
+method: searched
+source: https://www.proofpoint.com/us/products
+plan_count: 0
+currency: null
+note: 'Proofpoint publishes no prices, no tiers, no quotas-per-tier and no self-service
+  signup for any product or API. Every route to the platform is a sales motion: "Request
+  a demo" and "How to buy". API access is not a plan you buy — it is an entitlement
+  inside an existing paid tenant, and every credential on the estate is minted by an
+  administrator (TAP service principals on the Settings page, Threat Protection API keys
+  in the admin console, ET Intelligence keys issued at etadmin.proofpoint.com to
+  customers who have already paid for API access). There is therefore nothing to record
+  beyond the fact of the absence, and an honest zero is the finding.'
+plans: []
+probes:
+- url: https://www.proofpoint.com/us/pricing
+  status: 404
+- url: https://www.proofpoint.com/us/pricing-and-plans
+  status: 404
+  result: soft-404 ("Page Not Found") served with HTTP 200 at the canonical URL after a
+    redirect; recorded as absent
+- url: https://www.proofpoint.com/us/products
+  status: 200
+  result: product catalogue, no prices
+- url: https://etadmin.proofpoint.com/api-access
+  status: 200
+  result: redirects to a login; ET Intelligence API keys are issued to paying customers
+    only
+acquisition:
+  self_service: false
+  free_tier: false
+  trial: 'Proof of Concept (POC) available through sales — referenced from the Trust
+    centre, not self-service.'
+  contact: https://www.proofpoint.com/us/contact

@@ -1,0 +1,29 @@
+generated: '2026-09-13'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: help.proofpoint.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Dec 10 23:59:59 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: tap-api-v2.proofpoint.com
+  https: true
+  tls_version: TLSv1.2
+  cert_expires: Dec 10 23:59:59 2026 GMT
+  hsts: null
+- host: threatprotection-api.proofpoint.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov 16 23:59:59 2026 GMT
+  hsts: null
+domains:
+- domain: proofpoint.com
+  dnssec: false
+  caa:
+  - 0 issue "comodo.com"
+  - 0 issue "thawte.com"
+  spf: true
+  dmarc: true
+  dmarc_policy: reject

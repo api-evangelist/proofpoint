@@ -1,0 +1,68 @@
+generated: '2026-09-13'
+method: searched
+source: https://www.proofpoint.com/us/legal/trust
+name: Proofpoint Trust
+trust_center:
+  url: https://www.proofpoint.com/us/legal/trust
+  certifications_url: https://www.proofpoint.com/us/legal/trust/product-certifications
+  policies_url: https://www.proofpoint.com/us/legal/trust/policies-and-procedures
+  http_status: 200
+  gated: false
+  last_updated_stated: '2026-08-25'
+certifications:
+- name: ISO/IEC 42001
+  domain: AI management system (AIMS)
+  status: certified
+  scope_note: in-scope solutions identified in the certificate
+- name: ISO/IEC 27001
+  domain: Information security management system (ISMS)
+  status: certified
+  scope_note: in-scope solutions identified in the certificate
+- name: SOC 2
+  domain: Trust services criteria
+  status: audited
+  scope_note: reports available on request, not published
+- name: FedRAMP
+  domain: US federal cloud authorization
+  status: authorized
+  scope_note: 'Proofpoint''s own page points at the FedRAMP Marketplace listing rather
+    than naming an impact level. A 2026 Proofpoint press release states an existing
+    FedRAMP Moderate authorization for email protection and email DLP and a pursuit of
+    FedRAMP High for Collaboration Security. The Marketplace itself is a JS-rendered
+    SPA and its product JSON could not be read, so the impact level is recorded from
+    Proofpoint''s own newsroom rather than from the authority.'
+- name: IRAP
+  domain: Australian Government Information Security Manual
+  status: assessed
+- name: ENS (Esquema Nacional de Seguridad)
+  domain: Spain National Security Framework
+  status: certified
+- name: EU-U.S. / UK Extension / Swiss-U.S. Data Privacy Framework
+  domain: Transatlantic personal data transfer
+  status: certified
+  verify_url: https://www.dataprivacyframework.gov
+- name: PCI DSS
+  domain: Payment card data
+  status: compliant
+  scope_note: Proofpoint Archive only
+- name: FIPS 140 validated cryptographic modules
+  domain: Federal cryptographic validation
+  status: validated
+  verify_note: verified via the NIST Computer Security Resource Center
+- name: CSA STAR Registry
+  domain: Cloud security and privacy controls
+  status: listed
+surfaces:
+- name: Data Processing Agreement (global DPA)
+- name: Data Processing and Retention by product
+- name: Subprocessors by location
+- name: Data Privacy and Security Information Sheets
+- name: Policies and Procedures, TOMs and Product Certifications
+- name: Contracts (US Privacy Law Addendum, BAA, License Terms, Customer Agreement, MSA)
+evidence:
+- url: https://www.proofpoint.com/us/legal/trust
+  http_status: 200
+- url: https://www.proofpoint.com/us/legal/trust/product-certifications
+  http_status: 200
+- url: https://www.proofpoint.com/us/legal/trust/policies-and-procedures-toms-and-product-certifications
+  http_status: 200

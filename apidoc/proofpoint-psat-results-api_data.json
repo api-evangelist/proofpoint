@@ -1,0 +1,2921 @@
+[
+  {
+    "title": "Introduction",
+    "version": "0.1.0",
+    "name": "Introduction",
+    "group": "Introduction",
+    "description": "<p>The Proofpoint Results API is not a turnkey tool and does not have predefined connectors to common BI tools or LMS systems. Therefore, you will have to refer to the instructions provided by those tools or the LMS system for information on how to integrate with the Proofpoint Results API.</p> <p>The Proofpoint Results API contains five endpoints from which you can retrieve and filter data for your business needs: <li><b>CyberStrength</b> – returns information from CyberStrength</li> <li><b>PhishAlarm</b> – returns information from PhishAlarm information</li> <li><b>Phishing</b> – returns information from ThreatSim simulated phishing campaigns</li> <li><b>Training</b> – returns information from Training assignments</li> <li><b>Users</b> – returns information about Users</li> <li><b>Training Enrollments</b> – returns information from the (beta) User Enrollments Report</li> <br/> <p><b>Intended Audience</b></p> <p>The Proofpoint Results API and these instructions are designed to be used by software engineers, system architects, and system designers. Using the Proofpoint Results API requires knowledge of and familiarity with API building blocks that include remote calls, object classes, variables, HTML, CSS, JavaScript, and web application development. These building blocks are used to build software applications and business intelligence outputs.</p> <br /> <p><b>Programming Responsibility</b></p> <p>Since there are many different business intelligence (BI) tools and Learning Management Systems (LMS), all programming integrations must be done by your technical personnel. Proofpoint Support does not offer any programming assistance with integrating the Results API with your tools. </p> <br /> <p><b>Programming Details</b></p> <p>The API output format is JSON.</p> <p>The maximum request size is 8KB.</p> <p>The API supports:</p> <li>Pagination (see Pagination below)</li> <li>Filtering (see Filtering below and details in each endpoint)</li> <li>Handling of special characters and URL encoding is detailed in <a href=\"#url_encoding\">Appendix A. </a></li><br /><p>The API refresh rates vary per endpoint as follows:<br/><br/>   Refreshes approximately three times a day:<br/><li>CyberStrength</li><li>PhishAlarm</li><li>Phishing</li><li>Training</li><li>Users</li><br/>   Refreshes approximately every 15 minutes: TrainingEnrollments</p><br/> <p><b>Pagination</b></p> <p>By default, the page size (number of records returned) is 20 (our recommended page size). You can request more records per page using the <code>page[size]</code> parameter.<p> <br /> <p><b>Filtering</b></p> <p> A number of filters are provided for each endpoint of the API. Descriptions and default values for each filter are provided in each section below. </p> <p>In general, the filters are considered as additive operations. For example, if you request all campaigns in the last 30 days, and the inclusion of deleted users, you will receive data for the campaigns in the last 30 days, including data for deleted users. If you filter by campaigns in the last 30 days, and \"Campaign Type\" of \"Drive By\", you will receive only the assessments of type \"Drive By\" that were started in the last 30 days. </p> <br /> <p><i>Filtering on training modules</i></p> <p>There are two ways that users can take training - via training assignment or Free Play modules.</p> <p>To filter via Free Play:</p> <p>In order to include modules completed via Free Play, include the <code>filter[_includefreeplay]</code> and set the value to \"TRUE\".  Including Free Play training data requires the <code>filter[_attemptdate_start]</code> and <code>filter[_attemptdate_end]</code> to be set. </p> <p>When the <code>filter[_includefreeplay]</code> is set to \"TRUE\", the following filters should <b>NOT</b> be used: <code>filter[_assignmentstartdate_start]</code>, <code>filter[_assignmentstartdate_end]</code>, <code>filter[_includenotstarted]</code>, <code>filter[_includedeletedassignments]</code>, <code>filter[_includeremovedusers]</code>.</p> <p>In the <code>filter[user_tag]</code> field, add \"User tags are the custom properties that your company has defined in the platform. Many companies include fields like \"Department\", \"Region\", or \"Manager\". You can filter on one or more custom field/user tag per call. For example, \"Department = Marketing\" and \"Region = South.\" At this time, you cannot filter on the same custom property multiple times in the same call, e.g. \"Region = South\" and \"Region = North\". The format of this query is <code>?filter[user_tag][tag_name]='tag_value'</code>, and an example is: <code>?filter[user_tag][Department]='Finance'</code>.</p> <br /> <p><b>Known Issues and Improvement Opportunities</b></p> <p><li>Time zones may be presented differently, based on the endpoint selected. Current behavior is as follows:</li></p> <p>&nbsp; &ndash; ThreatSim phishing: UTC</p> <p>&nbsp; &ndash; Legacy PhishGuru phishing: EST (EU and US environments), UTC (AP environment)</p> <p>&nbsp; &ndash; Training: EST (US environment), UTC (EU and AP environments)</p> <p>&nbsp; &ndash; User: UTC</p> <p>It is our intent to standardize the presentation of time zones in the future.</p> <p><li>The <code>ID</code> field is not a fixed field, nor is it a global user ID (GUID). Rather, it is an index number that supports pagination when you make the API call. Please note that the IDs are not unique and may change over time. <code>Email Address</code> is the unique identifier for user data.</li></p> </p> </br />"
+  },
+  {
+    "type": "post",
+    "title": "Authentication",
+    "version": "0.1.0",
+    "name": "AuthenticationAPI",
+    "group": "API_Endpoints",
+    "description": "<p><b>API Authentication Using Token Keys</b></p> <p>To make API requests, the Proofpoint Results API requires token-based authentication for secure access to data in the Platform.</p> <p><b>NOTE:</b> If you haven’t received a token key, please contact your Proofpoint Security Awareness Training Platform Administrator (Admin) to receive it. The Admin is responsible for generating the token key using the Platform. Refer to the <i>\"Proofpoint Results API Access Token Mart Guide\"</i>. <p><ol><li>Once you receive the access token from the Admin, you can use it to make a request to the API by entering it in the x-apikey-token header, as detailed in the rest of this documentation.</li><li>Refer to the POST sample below to enter the token key.</li> </ol><p>Please Note In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. CyberStrength, PhishAlarm, Phishing, Training, and Users <br/></p></p></p>  <br />",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "curl -X GET curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength -g \\\n \n --header \" x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      }
+    ],
+    "filename": "reporting/documentation/latest/JWT_framework.py",
+    "groupTitle": "API Endpoints"
+  },
+  {
+    "type": "get",
+    "url": "/cyberstrength",
+    "title": "Knowledge Assessments",
+    "version": "0.1.0",
+    "name": "CyberStrengthFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns information from Knowledge Assessments (previously Cyberstrength). Contains functionality for a variety of filters. Please see the &quot;Parameter&quot; section of this documentation for more information on these filters.</p><p><code>Reminder!</code> In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. if you were setting up API endpoints for Knowledge Assessments for your US platform environment, you would replace host.server:port with results.us.securityeducation.com. Typically customers platform accounts correspond to their geographic region.  If you have any questions as to which environment your platform account is set up on, please ask your Platform Admin or Proofpoint Customer Success Manager or Customer Support.<br/></p></p>",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/cyberstrength?page[number]=2&page[size]=5&filter[_assessmenttype]=[Predefined]\nhttps://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assignmentstartdate_start]='2016-02-02'&filter[_assignmentstartdate_end]='2016-03-02'&filter[_includenotstarted]=TRUE\nhttps://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_fullquestion]=FALSE&filter[user_tag][Department]='Marketing'&user_tag_enable\nhttps://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assignmentname]=[1-17-17 C & YB Phishing - Userlist, 1-15-18 C & YB Phishing]&filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength -g \\\n--header \" x-apikey-token: $token\"| json_pp\n \n curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength?page[number]=2&page[size]=5 -g \\\n--header \" x-apikey-token: $token\"| json_pp\n \n curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assessmenttype]=[Predefined, Administrator Defined] -g \\\n--header \"x-apikey-token: $token\"| json_pp\n \ncurl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assignmentstartdate_start]='2016-02-02'&filter[_assignmentstartdate_end]='2016-03-02'&filter[_includenotstarted]=TRUE -g \\\n--header \" x-apikey-token: $token\"| json_pp\n \n curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[user_tag][Department]='Marketing'&user_tag_enable -g \\\n--header \" x-apikey-token: $token\"| json_pp\n \n curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_fullquestion]=FALSE -g \\\n--header \" x-apikey-token: $token\"| json_pp\n \n curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assignmentname]=[1-17-17 C & YB Phishing - Userlist, 1-15-18 C & YB Phishing]&filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org] -g \\ \n --header \" x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set assignmentstart=2018-01-01\nset assignmentend=2018-03-01\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assignmentstartdate_start]='%assignmentstart%'&filter[_assignmentstartdate_end]='%assignmentend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >cyberstrength.txt\n \n set assessmenttype=Predefined\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assessmenttype]=[%assessmenttype%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >cyberstrength.txt\n \n set fullquestion=FALSE\nset includenotstarted=TRUE\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_fullquestion]=%fullquestion%&filter[_includenotstarted]=%includenotstarted%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >cyberstrength.txt\n \n set assignmentname=Phishing-Userlist,Phishing\nset useremailaddress=john.doe@example.org,jane.doe@example.org\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/cyberstrength?filter[_assignmentname]=[%assignmentname%]&filter[_useremailaddress]=[%useremailaddress%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >cyberstrength.txt\n",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentname]",
+            "description": "<p>Filter to select one or more assignment names. By default, all values are returned. <br/>Format: ?filter[_assignmentname]=[name]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentstartdate_start]",
+            "description": "<p>Filter by the start date of the assignment. <br />Format: ?filter[_assignmentstartdate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentstartdate_end]",
+            "description": "<p>Filter by the end date of the assignment. <br />Format: ?filter[_assignmentstartdate_end]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_questiondate_start]",
+            "description": "<p>Filter by the start date that the question was answered. <br />Format: ?filter[_questiondate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_questiondate_end]",
+            "description": "<p>Filter by the end date that the question was answered. <br />Format: ?filter[_questiondate_end]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includenotstarted]",
+            "description": "<p>Filter to include assignments that have not been started. Default value is “TRUE”. <br />Format: ?filter[_includenotstarted]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedusers]",
+            "description": "<p>Filter to include deleted users. Default value is “FALSE”. <br />Format: ?filter[_includedeletedusers]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedassignments]",
+            "description": "<p>Filter to include deleted assignments. Default value is “FALSE”. <br />Format: ?filter[_includedeletedassignments]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_fullquestion]",
+            "description": "<p>Filter to return the full question copy in the results set. Default value is “TRUE”. <br />Format: ?filter[_fullquestion]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assessmenttype]",
+            "description": "<p>Filter to select one or more assessment types. By default, all values are returned. <br />Values include, “Randomly Generated, Administrator Defined, Predefined, Automatically Generated”, takes an array of values. <br />Format: ?filter[_assessmenttype]=[typename]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br/>Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[user_tag]",
+            "description": "<p>The user_tag filter allows you to filter on a specific free value tag (formerly called “custom user properties.” For this filter, provide your tag (custom property)  <br />Format: &quot;?filter[user_tag][tag_name]='tag_value'. There must be single quotes around your tag value, or you will get a query error.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "CyberStrength Field List (Success 200)": [
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator position in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentname",
+            "description": "<p>Assignment name</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assessmentname",
+            "description": "<p>Assessment name</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentstatus",
+            "description": "<p>Status of the assignment, e.g. &quot;Not Started, In Progress, Completed&quot;</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assessmentstatus",
+            "description": "<p>Status of the assessment, e.g. &quot;Draft, Approved, Published&quot;</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assessmenttype",
+            "description": "<p>CyberStength assessment type</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentstartdate",
+            "description": "<p>Date the assignment was started and available to users</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentduedate",
+            "description": "<p>Date the assignment is due</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentdeleteddate",
+            "description": "<p>Date the assignment was deleted</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "userremovedfromassignment",
+            "description": "<p>true/false field that indicates if a user was removed from the assignment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "category",
+            "description": "<p>Category of the question</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "categorybenchmarkall",
+            "description": "<p>Benchmark score for the category, averaged across all Wombat customers</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "categorybenchmarkindustry",
+            "description": "<p>Benchmark score for the category, averaged across Wombat customers in your assigned industry (e.g. healthcare, manufacturing)</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "questionsincategory",
+            "description": "<p>Overal number of questions in the category</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "isaeenabled",
+            "description": "<p>Specifies whether the CyberStrength Assessment can trigger training auto-enrollment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "attemptdate",
+            "description": "<p>Date the CyberStrength assessment was taken</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User first name</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User last name</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>Email address</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>true/false field indicating whether the user is active</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "userdeleteddate",
+            "description": "<p>Date the user was deleted</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userassignmentstatus",
+            "description": "<p>User assignment status, e.g. “Not Started, In Progress, Completed”</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "questionid",
+            "description": "<p>Unique identifier of the question</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "questiontype",
+            "description": "<p>Type of the question, e.g. multiple choice, true/false</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "iscustomquestion",
+            "description": "<p>Is the question a custom question?</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "questiontext",
+            "description": "<p>Full text of the question</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "selectedanswer",
+            "description": "<p>Answer selected by the user</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "correct",
+            "description": "<p>Did the user answer the question correctly?</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "secondsinattempt",
+            "description": "<p>Duration, in seconds, the user spent completing the CyberStrength assessment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "usercorrectonassignment",
+            "description": "<p>Total number of questions the user answered correctly on the assignment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "useransweredonassignment",
+            "description": "<p>Number of questions the user answered on the assignment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "userscoreonassignment",
+            "description": "<p>User's score on the assignment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "questionlatency",
+            "description": "<p>Amount of time the user took to answer the question (in milliseconds)</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "questiondate",
+            "description": "<p>The date the user answered the question</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "assignmentaveragescore",
+            "description": "<p>Average question score for the assignment</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "companyaveragescore",
+            "description": "<p>Average question score for the company</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Customer-defined tags (also known as custom properties) associated with the user, and their corresponding values</p>"
+          },
+          {
+            "group": "CyberStrength Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>Identifier provided by your single sign on system for the user.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    },\n    \"links\": {\n        \"first\": \"/api/reporting/v0.1.0/cyberstrength?page%5Bsize%5D=1\",\n        \"last\": \"/api/reporting/v0.1.0/cyberstrength?page%5Bnumber%5D=35&page%5Bsize%5D=1\",\n        \"next\": \"/api/reporting/v0.1.0/cyberstrength?page%5Bnumber%5D=2&page%5Bsize%5D=1\",\n        \"self\": \"/api/reporting/v0.1.0/cyberstrength?page%5Bnumber%5D=1&page%5Bsize%5D=1\"\n    },\n    \"meta\": {\n        \"page_number\": \"1\",\n        \"page_size\": \"1\",\n        \"count\": 35\n    },\n    \"data\": [\n        {\n            \"type\": \"fn_cyb_events_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"assignmentname\": \"1-17-17 C & YB Phishing - Userlist\",\n                \"assessmentname\": \"Phishing\",\n                \"assignmentstatus\": \"Not Started\",\n                \"assessmentstatus\": \"Approved\",\n                \"assessmenttype\": \"Predefined\",\n                \"assignmentstartdate\": \"2017-01-17T00:00:00\",\n                \"assignmentduedate\": \"2017-01-31T00:00:00\",\n                \"assignmentdeleteddate\": \"9999-01-01T00:00:00\",\n                \"userremovedfromassignment\": false,\n                \"category\": \"Custom Question No Data Available\",\n                \"categorybenchmarkall\": null,\n                \"categorybenchmarkindustry\": null,\n                \"questionsincategory\": null,\n                \"isaeenabled\": true,\n                \"attemptdate\": null,\n                \"userfirstname\": \"58d72e8e4929313bdba8dc247ef3aa5f\",\n                \"userlastname\": \"0bbe256b1695387f2c87f652b1d78521\",\n                \"useremailaddress\": \"8238d2b693d9ad6dfab94f382064e726\",\n                \"useractiveflag\": true,\n                \"userdeleteddate\": null,\n                \"userassignmentstatus\": \"Not Started\",\n                \"questionid\": null,\n                \"questiontype\": \"Multiple Choice\",\n                \"iscustomquestion\": true,\n                \"questiontext\": \"Custom Question\",\n                \"selectedanswer\": null,\n                \"correct\": false,\n                \"secondsinattempt\": \"0\",\n                \"usercorrectonassignment\": null,\n                \"useransweredonassignment\": null,\n                \"userscoreonassignment\": null,\n                \"questionlatency\": \"0\",\n                \"questiondate\": null,\n                \"assignmentaveragescore\": null,\n                \"companyaveragescore\": null,\n                \"usertags\": null,\n                \"sso_id\": null\n            }\n        }\n    ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/cyberdata_framework_010.py",
+    "groupTitle": "API Endpoints"
+  },
+  {
+    "type": "get",
+    "url": "/phishalarm",
+    "title": "PhishAlarm",
+    "version": "0.1.0",
+    "name": "PhishAlarmFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns PhishAlarm information. Contains functionality for date filters, and enabling / disabling of users' tag information. Please see the &quot;Parameter&quot; section of this documentation for more information on these filters.</p><p><code>Reminder!</code> In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. if you were setting up API endpoints for PhishAlarm for your US platform environment, you would replace host.server:port with results.us.securityeducation.com. Typically customers platform accounts correspond to their geographic region.  If you have any questions as to which environment your platform account is set up on, please ask your Platform Admin or Proofpoint Customer Success Manager or Customer Support.<br/></p></p>",
+    "examples": [
+      {
+        "title": "Example usage: ",
+        "content": "https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/phishalarm?page[number]=1&page[size]=10&filter[_reporteddate_start]='2015-02-01'&filter[_reporteddate_end]='2015-03-01'\nhttps://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_receiveddate_start]='2017-02-02'&filter[_receiveddate_end]='2017-03-01'\nhttps://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_includedeletedusers]=TRUE&filter[user_tag][Department]='Finance'&user_tag_enable\nhttps://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]&filter[_action]=[Opened, Unopened]&filter[_includeplatformnotifications]=TRUE",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm?page[number]=1&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm?page[number]=1&page[size]=10&filter[_reporteddate_start]='2015-02-01'&filter[_reporteddate_end]='2015-03-01' -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_receiveddate_start]='2017-02-02'&filter[_receiveddate_end]='2017-03-01' -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_includedeletedusers]=TRUE&filter[user_tag][Department]='Finance'&user_tag_enable -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]&filter[_action]=[Opened, Unopened]&filter[_includeplatformnotifications]=TRUE -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set reportedstart=2018-01-01\nset reportedend=2018-03-01\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_reporteddate_start]='%reportedstart%'&filter[_reporteddate_end]='%reportedend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishalarm.txt\n\nset receivedstart=2017-02-02\nset receivedend=2017-03-01\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_receiveddate_start]='%receivedstart%'&filter[_receiveddate_end]='%receivedend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishalarm.txt\n\nset includedeletedusers=TRUE\nset useremailaddress=john.doe@example.org,jane.doe@example.org\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_includedeletedusers]=%includedeletedusers%&filter[_useremailaddress]=[%useremailaddress%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishalarm.txt\n\nset action=Opened,Unopened\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishalarm?filter[_action]=[%action%]?filter[_includeplatformnotifications]=TRUE\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishalarm.txt",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_reporteddate_start]",
+            "description": "<p>Filter by the date that emails started to be reported via PhishAlarm.  <br />Format: ?filter[_reporteddate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_reporteddate_end]",
+            "description": "<p>Filter by the date that emails reported via PhishAlarm ended. <br />Format: ?filter[_reporteddate_end]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_receiveddate_start]",
+            "description": "<p>Filter by the start date that emails were received by users. <br />Format: ?filter[_receiveddate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_receiveddate_end]",
+            "description": "<p>Filter by the end date that emails were received by users.  <br />Format: ?filter[_receiveddate_end]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br /> Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedusers]",
+            "description": "<p>Filter to include deleted users. Default value is “FALSE”. <br />Format: ?filter[_includedeletedusers]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_action]",
+            "description": "<p>Filter to select one or more actions. By default, all values are returned. Values include, “Opened, Opened in Preview Pane, Unopened” takes an array of values. <br />Format: ?filter[_action]=[name]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[user_tag]",
+            "description": "<p>The user_tag filter allows you to filter on a specific free value tag (formerly called “custom user properties.” For this filter, provide your tag (custom property)  <br />Format: &quot;?filter[user_tag][tag_name]='tag_value'. There must be single quotes around your tag value, or you will get a query error.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includeplatformnotifications]",
+            "description": "<p>Filter to include Platform Notification email types.  Default value is “False“.<br />Format: ?filter[_includeplatformnotifications]=TRUE/FALSE.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "PhishAlarm Field List (Success 200)": [
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator position in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "campaignname",
+            "description": "<p>Simulated phishing campaign associated with the PhishAlarm reported email</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User first name</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User last name</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>Email Address</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>true/false field indicating whether the user is active</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "userdeleteddate",
+            "description": "<p>Date the user was deleted</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "action",
+            "description": "<p>Type of action the user took, e.g. Opened, Opened in Preview Pane, Unopened</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "emailtype",
+            "description": "<p>Specifies the category of email, e.g. Platform Notification, Potential Phish, Simulated Phish</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "receiveddate",
+            "description": "<p>Date the user received the email</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "reporteddate",
+            "description": "<p>Date the user reported the email</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "elapsedhours",
+            "description": "<p>The amount of hours that elapsed between receiving and reporting of the email</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "os",
+            "description": "<p>Operating system of the user's computer or device</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "emailclientversion",
+            "description": "<p>Type and version of email client</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Customer-defined tags (also known as custom properties) associated with the user, and their corresponding values</p>"
+          },
+          {
+            "group": "PhishAlarm Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>Identifier provided by your single sign on system for the user.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"links\": {\n        \"next\": \"/api/reporting/v0.1.0/phishalarm?page%5Bnumber%5D=2\",\n        \"last\": \"/api/reporting/v0.1.0/phishalarm?page%5Bnumber%5D=9\",\n        \"self\": \"/api/reporting/v0.1.0/phishalarm\",\n        \"first\": \"/api/reporting/v0.1.0/phishalarm\"\n    },\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    },\n    \"meta\": {\n        \"count\": 176,\n        \"page_size\": 20,\n        \"page_number\": 1\n    },\n    \"data\": [\n        {\n            \"type\": \"fn_phishalarm_events_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"campaignname\": \"Apr 21 drive_by test\",\n                \"userfirstname\": \"7fb55ed0b7a30342ba6da306428cae04\",\n                \"userlastname\": \"d55b30607c2a9a2616347d6edb789f6b\",\n                \"useremailaddress\": \"350caadb38672792361fa29de89712c1\",\n                \"useractiveflag\": true,\n                \"userdeleteddate\": null,\n                \"action\": \"Opened\",\n                \"emailtype\": \"Simulated Phish\",\n                \"receiveddate\": \"2017-04-21T13:50:33\",\n                \"reporteddate\": \"2017-04-21T13:51:18\",\n                \"elapsedhours\": \"0.0\",\n                \"os\": \"Unknown OS\",\n                \"emailclientversion\": \"NA\",\n                \"usertags\": null,\n                \"sso_id\": null\n            }\n        }\n        ...\n    ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/phishalarm_framework_010.py",
+    "groupTitle": "API Endpoints"
+  },
+  {
+    "type": "get",
+    "url": "/phishing",
+    "title": "Phishing",
+    "version": "0.1.0",
+    "name": "PhishingEventFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns information for simulated phishing campaigns. Contains functionality for a variety of filters. Please see the &quot;Parameter&quot; section of this documentation for more information on these filters.</p><p><code>Reminder!</code> In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. if you were setting up API endpoints for Phishing for your US platform environment, you would replace host.server:port with results.us.securityeducation.com. Typically customers platform accounts correspond to their geographic region.  If you have any questions as to which environment your platform account is set up on, please ask your Platform Admin or Proofpoint Customer Success Manager or Customer Support.<br/></p></p>",
+    "examples": [
+      {
+        "title": "Example usage: ",
+        "content": "https://host.server:port/api/reporting/v0.1.0/phishing?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/phishing?page[number]=1&page[size]=10&filter[_eventtimestamp_start]='2017-02-04'&filter[_eventtimestamp_end]='2017-02-07'\nhttps://host.server:port/api/reporting/v0.1.0/phishing?filter[user_tag][Manager]='Jane Doe'&filter[user_tag][Region]='South'&user_tag_enable\nhttps://host.server:port/api/reporting/v0.1.0/phishing?filter[_includearchivedcampaigns]=TRUE&filter[_campaignstartdate_start]='2016-02-02'&filter[_campaignstartdate_end]='2016-05-02'\nhttps://host.server:port/api/reporting/v0.1.0/phishing?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]&filter[_campaignname]=[PhishGuru Campaign 10-05-2018, PhishGuru Campaign 11-02-2017]",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/phishing -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishing?page[number]=1&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishing?page[number]=1&page[size]=10&filter[_eventtimestamp_start]='2017-02-04'&filter[_eventtimestamp_end]='2017-02-07' -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishing?filter[user_tag][Manager]='Jane Doe'&filter[user_tag][Region]='South'&user_tag_enable -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishing?filter[_includearchivedcampaigns]=TRUE&filter[_campaignstartdate_start]='2016-02-02'&filter[_campaignstartdate_end]='2016-05-02' -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/phishing?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]&filter[_campaignname]=[PhishGuru Campaign 10-05-2018, PhishGuru Campaign 11-02-2017] -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set campaignstart=2018-01-01\nset campaignend=2018-03-01\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishing?filter[_campaignstartdate_start]='%campaignstart%'&filter[_campaignstartdate_end]='%campaignend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishing.txt\n\nset eventtimestampstart=2017-02-04\nset eventtimestampend=2017-02-07\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishing?filter[_eventtimestamp_start]='%eventtimestampstart%'&filter[_eventtimestamp_end]='%eventtimestampend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishing.txt\n\nset includearchivedcampaigns=TRUE\nset campaignname=PhishGuruCampaign2018,PhishGuruCampaign2017\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishing?filter[_includearchivedcampaigns]=%includearchivedcampaigns%&filter[_campaignname]=[%campaignname%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishing.txt\n\nset useremailaddress=john.doe@example.org,jane.doe@example.org\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/phishing?filter[_useremailaddress]=[%useremailaddress%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishing.txt",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_eventtimestamp_start]",
+            "description": "<p>Filter by the start date of the user event (e.g. link clicked, attachment opened, data submitted). <br />Format: ?filter[_eventtimestamp_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_eventtimestamp_end]",
+            "description": "<p>Filter by the end date of the user event (e.g. link clicked, attachment opened, data submitted). <br />Format: ?filter[_eventtimestamp_end]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_campaignname]",
+            "description": "<p>Filter to select one or more campaign names. By default, all values are returned. <br /> Format: ?filter[_campaignname]=[name]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_campaignstartdate_start]",
+            "description": "<p>Filter by the campaign start date. <br />Format: ?filter[_campaignstartdate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_campaignstartdate_end]",
+            "description": "<p>Filter by the campaign end date. <br />Format: ?filter[_campaignstartdate_end]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includenoaction]",
+            "description": "<p>Filter to include or exclude records where no action was taken (no event happened). For example, if 1,000 users were sent a simulated phish, and 200 clicked, includenoaction=TRUE would return 1,000 records. Conversely, includenoaction = FALSE would return 200 records (800 users took no action). Default value is “TRUE”. <br />Format: ?filter[_includenoaction]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br />Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedusers]",
+            "description": "<p>Filter to include or exclude deleted users. Default value is “FALSE”. <br />Format: ?filter[_includedeletedusers]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includearchivedcampaigns]",
+            "description": "<p>Filter to include archived campaigns. Default value is “FALSE”. <br />Format: ?filter[_includearchivedcampaigns]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[user_tag]",
+            "description": "<p>The user_tag filter allows you to filter on a specific free value tag (formerly called “custom user properties.” For this filter, provide your tag (custom property) <br />Format: &quot;?filter[user_tag][tag_name]='tag_value'. There must be single quotes around your tag value, or you will get a query error.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Phishing Field List (Success 200)": [
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator position in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User first name</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User last name</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>Email address</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>true/false field indicating whether the user is active</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "userdeleteddate",
+            "description": "<p>Date the user was deleted</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "senttimestamp",
+            "description": "<p>Time stamp when the phishing email was sent</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "eventtimestamp",
+            "description": "<p>Time stamp of the phishing campaign event (e.g. view, click)</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "eventtype",
+            "description": "<p>Type of event: Data Submission, Email View, Email Click, No Action, TM Complete, TM Sent</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "campaignname",
+            "description": "<p>Name of the campaign</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "autoenrollment",
+            "description": "<p>Does this phishing campaign trigger a training autoenrollment (true/false)?</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "campaignstartdate",
+            "description": "<p>Start date of the campaign</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "campaignenddate",
+            "description": "<p>End date of the campaign</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "campaigntype",
+            "description": "<p>Type of the phishing campaign event</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "campaignstatus",
+            "description": "<p>Status of campaign</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "templatename",
+            "description": "<p>Name of the phishing template used in the campaign</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "templatesubject",
+            "description": "<p>Email subject of the phishing campaign template</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "assessmentisarchived",
+            "description": "<p>true/false field indicating if the assessment has been archived</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Customer-defined tags (also known as custom properties) associated with the user, and their corresponding values</p>"
+          },
+          {
+            "group": "Phishing Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>Identifier provided by your single sign on system for the user.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"data\": [\n        {\n            \"type\": \"fn_attack_events_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"userfirstname\": \"edf7397416359d57215307af49b4493a\",\n                \"userlastname\": \"be4990aa4393c80dc49843107b3d6366\",\n                \"useremailaddress\": \"39d70f2acca1b12b1da7503eff212228\",\n                \"useractiveflag\": true,\n                \"userdeleteddate\": null,\n                \"senttimestamp\": \"2016-04-28T11:30:00\",\n                \"eventtimestamp\": \"2016-04-28T11:50:28\",\n                \"eventtype\": \"No Action\",\n                \"campaignname\": \"SmishGuru Campaign 04-28-2016 LW\",\n                \"autoenrollment\": false,\n                \"campaignstartdate\": \"2016-04-28T01:00:00\",\n                \"campaignenddate\": \"2016-05-05T01:00:00\",\n                \"campaigntype\": \"Drive By\",\n                \"campaignstatus\": \"Sent\",\n                \"templatename\": \"Debit Card Deactivated\",\n                \"templatesubject\": \"Unknown\",\n                \"assessmentisarchived\": false,\n                \"usertags\": null,\n                \"sso_id\": null\n            }\n        }\n    ],\n    \"links\": {\n        \"next\": \"/api/reporting/v0.1.0/phishing?page%5Bsize%5D=1&page%5Bnumber%5D=2\",\n        \"self\": \"/api/reporting/v0.1.0/phishing?page%5Bsize%5D=1\",\n        \"first\": \"/api/reporting/v0.1.0/phishing?page%5Bsize%5D=1\",\n        \"last\": \"/api/reporting/v0.1.0/phishing?page%5Bsize%5D=1&page%5Bnumber%5D=120973\"\n    },\n    \"meta\": {\n        \"count\": 120973\n    },\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/attackevent_framework_010.py",
+    "groupTitle": "API Endpoints"
+  },
+  {
+    "type": "get",
+    "url": "/training",
+    "title": "Training",
+    "version": "0.1.0",
+    "name": "TrainingFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns information from training assignments. Contains functionality for a variety of filters. Please see the &quot;Parameter&quot; section of this documentation for more information on these filters.</p><p><code>Reminder!</code> In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. if you were setting up API endpoints for Training for your US platform environment, you would replace host.server:port with results.us.securityeducation.com. Typically customers platform accounts correspond to their geographic region.  If you have any questions as to which environment your platform account is set up on, please ask your Platform Admin or Proofpoint Customer Success Manager or Customer Support.<br/></p></p>",
+    "examples": [
+      {
+        "title": "Example usage: ",
+        "content": "https://host.server:port/api/reporting/v0.1.0/training?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/training?page[number]=1&page[size]=15&filter[_assignmentstartdate_start]='2017-03-03'&filter[_assignmentstartdate_end]='2017-04-03'\nhttps://host.server:port/api/reporting/v0.1.0/training?filter[_assignmentduedate_start]='2017-03-03'&filter[_assignmentduedate_end]='2017-04-03'\nhttps://host.server:port/api/reporting/v0.1.0/training?filter[_includenotstarted]=TRUE&filter[_includedeletedusers]=FALSE&filter[_userassignmentstatus]=[In Progress, Completed]\nhttps://host.server:port/api/reporting/v0.1.0/training?filter[_attemptdate_start]='2016-05-05'&filter[_attemptdate_end]='2016-05-06'&filter[user_tag][Department]='Accounting'&user_tag_enable\nhttps://host.server:port/api/reporting/v0.1.0/training?filter[_assignmentname]=[1-17-17 C & YB Phishing - Userlist, 1-15-18 C & YB Phishing]&filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/training -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/training?page[number]=1&page[size]=15 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/training?page[number]=1&page[size]=15&filter[_assignmentstartdate_start]='2017-03-03'&filter[_assignmentstartdate_end]='2017-04-03' -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/training?filter[_assignmentduedate_start]='2017-03-03'&filter[_assignmentduedate_end]='2017-04-03' -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/training?filter[_includenotstarted]=TRUE&filter[_includedeletedusers]=FALSE&filter[_userassignmentstatus]=[In Progress, Completed] -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/training?filter[_attemptdate_start]='2016-05-05'&filter[_attemptdate_end]='2016-05-06'&filter[user_tag][Department]='Accounting'&user_tag_enable -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/training?filter[_assignmentname]=[1-17-17 C & YB Phishing - Userlist, 1-15-18 C & YB Phishing]&filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org] -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set assignmentstart=2018-01-01\nset assignmentend=2018-03-01\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/training?filter[_assignmentstartdate_start]='%assignmentstart%'&filter[_assignmentstartdate_end]='%assignmentend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >training.txt\n\nset assignmentduestart=2019-03-03\nset assignmentdueend=2019-04-03\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/training?filter[_assignmentduedate_start]='%assignmentduestart%'&filter[_assignmentduedate_end]='%assignmentdueend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >training.txt\n\nset includenotstarted=TRUE\nset includedeletedusers=FALSE\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/training?filter[_includenotstarted]=%includenotstarted%&filter[_includedeletedusers]=%includedeletedusers%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >training.txt\n\nset userassignmentstatus=Completed\nset includedeletedusers=FALSE\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/training?filter[_userassignmentstatus]=[%userassignmentstatus%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >training.txt\n\nset attemptstart=2016-05-05\nset attemptdateend=2016-05-06\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/training?&filter[_attemptdate_start]='%attemptstart%'&filter[_attemptdate_end]='%2016-05-06%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >training.txt",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_attemptdate_start]",
+            "description": "<p>Filter by the start date of the user’s attempt at taking a training module.  <br />Format: ?filter[_attemptdate_start]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select assignmentstartdate 2018-01-01 to 2018-01-31 and moduleattemptdate of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_attemptdate_end]",
+            "description": "<p>Filter by the end date of the user’s attempt at taking a training module.  <br />Format: ?filter[_attemptdate_end]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select assignmentstartdate 2018-01-01 to 2018-01-31 and moduleattemptdate of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentname]",
+            "description": "<p>Filter to select one or more assignment names. By default, all values are returned. <br/>Format: ?filter[_assignmentname]=[name]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentstartdate_start]",
+            "description": "<p>Filter by the start date of the training assignment.  <br />Format: ?filter[_assignmentstartdate_start]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select assignmentstartdate 2018-01-01 to 2018-01-31 and moduleattemptdate of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentstartdate_end]",
+            "description": "<p>Filter by the end date of the training assignment.  <br />Format: ?filter[_assignmentstartdate_end]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select assignmentstartdate 2018-01-01 to 2018-01-31 and moduleattemptdate of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentduedate_start]",
+            "description": "<p>Filter by the earliest due date of an assignment(s), for a range of dates. This filter may be paired with the [_assignmentduedate_end] to return a range of due dates. Note that this filter applies for both scheduled assignments and duration-based assignments. <br/>Format: ?filter[_assignmentduedate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentduedate_end]",
+            "description": "<p>Filter by the latest due date of assignment(s), for range of dates. This filter may be paired with the [_assignmentduedate_start] to return a range of due dates. Note that this filter applies for both scheduled assignments and duration-based assignments.<br/>Format: ?filter[_assignmentduedate_start]='YYYY-MM-DD'.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includenotstarted]",
+            "description": "<p>Filter to include assignments that are not started. Default value is “TRUE”. <br />Format: ?filter[_includenotstarted]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br />Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedusers]",
+            "description": "<p>Filter to include deleted users. Default value is “FALSE”. <br />Format: ?filter[_includedeletedusers]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedassignments]",
+            "description": "<p>Filter to include deleted assignments. Default value is “FALSE”. <br />Format: ?filter[_includedeletedassignments]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includeremovedusers]",
+            "description": "<p>Filter to include users that have been removed from an assignment. Default value is “FALSE”. <br />Format: ?filter[_includeremovedusers]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_userassignmentstatus]",
+            "description": "<p>Filter to select one or more user assignment statuses. By default, all values are returned. Values include,  “Not Started, In Progress, Completed” takes an array of values. <br />Format: ?filter[_userassignmentstatus]=[statusname]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[user_tag]",
+            "description": "<p>The user_tag filter allows you to filter on a specific free value tag (formerly called “custom user properties.” For this filter, provide your tag (custom property)  <br />Format: &quot;?filter[user_tag][tag_name]='tag_value'. There must be single quotes around your tag value, or you will get a query error.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includefreeplay]",
+            "description": "<p>Filter to include or exclude free play training data. Default value is “FALSE”. <br />Format: ?filter[_includefreeplay]=TRUE/FALSE. <br />Including free play training data requires the filter[_attemptdate_start] and filter[_attemptdate_end] to be set. <br />When the filter[_includefreeplay] is set to 'TRUE', the following filters should not be used: filter[_assignmentstartdate_start], filter[_assignmentstartdate_end], filter[_includenotstarted], filter[_includedeletedassignments], filter[_includeremovedusers].</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Training Field List (Success 200)": [
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator count in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User first name</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User last name</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>Email address</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>true/false field indicating whether the user is active</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "userdeleteddate",
+            "description": "<p>Date the user was deleted</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentname",
+            "description": "<p>Assignment name</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentstartdate",
+            "description": "<p>Date the assignment was started (scheduled assignments) or assigned to the user (duration-based assignments)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentdeleteddate",
+            "description": "<p>Date that the assignment was deleted</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentduedate",
+            "description": "<p>End date of the assignment (scheduled assignments) or due date for the user (duration-based assignment)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentstatus",
+            "description": "<p>Status of the assignment</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentmethod",
+            "description": "<p>Indicates if the assignment is a schedule-based or duration-based assignment. <br/> Values include Duration and Scheduled.</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "duration",
+            "description": "<p>Duration of the assignment, in whole days. For scheduled assignments, the duration is the difference between the assignment start and assignment end dates. For duration-based assignments, the duration is based on the individual user's start and due dates.</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "isautoenroll",
+            "description": "<p>Specifies whether the assignment was the result of auto-enrollment</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "modulename_admin",
+            "description": "<p>Name of the module as seen by the Administrator</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "modulename_user",
+            "description": "<p>Name of the module as seen by the end user</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "moduletype",
+            "description": "<p>Specifies whether the module is Standard or Custom</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "moduleattemptdate",
+            "description": "<p>Date the module was attempted</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "modulelastaction",
+            "description": "<p>Date the user last took action (answered a question)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "secondsinmoduleattempt",
+            "description": "<p>Duration, in seconds, the user spent answering the question; only applies to completed attempts</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "moduleattemptendstatus",
+            "description": "<p>User status for when the module was completed, e.g. Completed, Completed - Force</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "moduleattemptstatus",
+            "description": "<p>User status for the module, e.g. Not Started, In Progress, Completed</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "moduleattemptscore",
+            "description": "<p>User's raw score on the attempt; only applies to completed attempts</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "moduleattemptscorecorrect",
+            "description": "<p>Number of correct answers given by a user; only applies to completed attempts</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "moduleattemptscoreanswered",
+            "description": "<p>Number of questions answered by a user; only applies to completed attempts</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "assignmentdeleted",
+            "description": "<p>true/false field that indicates if the assignment has been deleted</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "userremovedfromassignment",
+            "description": "<p>true/false field that indicates if a user was removed from the assignment</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userassignmentstatus",
+            "description": "<p>User assignment status, e.g. “Not Started, In Progress, Completed”</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Free value tags (user properties)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "isfreeplay",
+            "description": "<p>true/false field that indicates if the module was free play</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>Identifier provided by your single sign on system for the user.</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "forcecompleteddate",
+            "description": "<p>Date the user was force-completed for this module</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"meta\": {\n        \"page_number\": \"1\",\n        \"count\": 30,\n        \"page_size\": \"1\"\n    },\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    },\n    \"data\": [\n        {\n            \"type\": \"fn_training_events_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"userfirstname\": \"07d6265486b22356362387c5a098ba7d\",\n                \"userlastname\": \"047cb004f3b1fbe7352688b3a1c1597c\",\n                \"useremailaddress\": \"b014435258eb4a3bbf343fe054a4a28c\",\n                \"useractiveflag\": true,\n                \"userdeleteddate\": null,\n                \"assignmentname\": \"Duration\",\n                \"assignmentstartdate\": \"2017-02-02T00:00:00\",\n                \"assignmentdeleteddate\": \"9999-01-01T00:00:00\",\n                \"assignmentduedate\": \"2017-02-17T00:00:00\",\n                \"assignmentstatus\": \"Not Started\",\n                \"assignmentmethod\": \"Duration\",\n                \"duration\": null,\n                \"isautoenroll\": false,\n                \"modulename_admin\": \"Safer Web Browsing\",\n                \"modulename_user\": \"Safer Web Browsing\",\n                \"moduletype\": \"Standard\",\n                \"moduleattemptdate\": \"2017-02-02T00:00:00\",\n                \"modulelastaction\": \"2017-02-02T00:00:00\",\n                \"secondsinmoduleattempt\": null,\n                \"moduleattemptendstatus\": null,\n                \"moduleattemptstatus\": \"Not Started\",\n                \"moduleattemptscore\": null,\n                \"moduleattemptscorecorrect\": null,\n                \"moduleattemptscoreanswered\": null,\n                \"assignmentdeleted\": false,\n                \"userremovedfromassignment\": false,\n                \"userassignmentstatus\": \"Not Started\",\n                \"usertags\": null,\n                \"isfreeplay\": null,\n                \"sso_id\": null,\n            \"forcecompleteddate\": null\n            }\n        }\n    ],\n    \"links\": {\n        \"last\": \"/api/reporting/v0.1.0/training?page%5Bnumber%5D=30&page%5Bsize%5D=1\",\n        \"next\": \"/api/reporting/v0.1.0/training?page%5Bnumber%5D=2&page%5Bsize%5D=1\",\n        \"first\": \"/api/reporting/v0.1.0/training?page%5Bsize%5D=1\",\n        \"self\": \"/api/reporting/v0.1.0/training?page%5Bnumber%5D=1&page%5Bsize%5D=1\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/trainingevent_framework_010.py",
+    "groupTitle": "API Endpoints"
+  },
+{
+    "type": "get",
+    "url": "/trainingenrollments",
+    "title": "TrainingEnrollments",
+    "version": "0.2.0",
+    "name": "TrainingEnrollmentsFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns information from the User Enrollments report, which contains recently active training and user status for the past 365 days. Contains functionality for a variety of filters. Please see the \"Parameter\" section of this documentation for more information on these filters.</p><p><code>Reminder!</code> In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. if you were setting up API endpoints for Training Enrollments for your US platform environment, you would replace host.server:port with results.us.securityeducation.com. Typically customers platform accounts correspond to their geographic region.  If you have any questions as to which environment your platform account is set up on, please ask your Platform Admin or Proofpoint Customer Success Manager or Customer Support.<br/></p></p>",
+    "examples": [
+      {
+        "title": "Example usage: ",
+        "content": "https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10\nhttps://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]\nhttps://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[user_tag][Department]='Production'&user_tag_enable",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org] -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[user_tag][Department]='Production'&user_tag_enable -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set page_size=10\nset page_number=5\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=%page_number%&page[size]=%page_size%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt\n\nset useremailaddress=john.doe@example.org,jane.doe@example.org\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[%useremailaddress%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt\n\nset userproperty=Department\nset userpropertyvalue=Finance\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[user_tag]['%userproperty%']='%userpropertyvalue%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+         "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_created_start]",
+            "description": "<p>Filter by the start date of the user’s attempt at taking a training module.  <br />Format: ?filter[_created_start]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select _created_start 2018-01-01 to 2018-01-31 and _created_start of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_created_end]",
+            "description": "<p>Filter by the end date of the user’s attempt at taking a training module.  <br />Format: ?filter[_created_end]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select _created_end 2018-01-01 to 2018-01-31 and _created_end of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentname]",
+            "description": "<p>Filter to select one or more assignment names. By default, all values are returned. <br/>Format: ?filter[_assignmentname]=[name]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br />Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_filter_status]",
+            "description": "<p>Filter to select one or more user assignment statuses. By default, all values are returned. Values include,  “Not Started, In Progress, Completed” takes an array of values. <br />Format: ?filter[_filter_status]=[statusname]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_userfirstname]",
+            "description": "<p>Filter to select one or more specific user first names. _userfirstname takes an array of values. <br />Format: ?filter[_userfirstname]=[PersonFirst, OtherPersonFirst...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_userlastname]",
+            "description": "<p>Filter to select one or more specific user last name. _userlastname takes an array of values. <br />Format: ?filter[_userlastname]=[PersonLast, OtherPersonLast...]</p>"
+
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_manageremailaddress]",
+            "description": "<p>Filter to select users with a matching manager email address. _manageremailaddress takes an array of values. <br />Format: ?filter[_manageremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedusers]",
+            "description": "<p>Filter to include deleted (i.e., archived) users. Use “TRUE” to include results for both archived and unarchived users. This should not include results where BTUM's have been soft deleted. Use “FALSE” to only include results for unarchived users. Not including the filter [_includedeletedusers]will result in a filter value of “FALSE”.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includeremovedenrollments]",
+            "description": "<p>Filter to include (“TRUE”) or exclude (“FALSE”) user enrollments that have been removed from an assignment. Default value is “FALSE”.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_enrollmentremovalreason]",
+            "description": "<p>Filter to include archived users (“User Archived”) or users removed from an assignment (“User Removed From Assignment”).  Default value is “User Archived”.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Training Enrollments Field List (Success 200)": [
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator count in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "module_id",
+            "description": "<p>Hashed representation of the module ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User's first name</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User's last name</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>User's email address</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignment_id",
+            "description": "<p>Hashed representation of the assignment ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentname",
+            "description": "<p>Assignment Name</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentstartdate",
+            "description": "<p>Date the user was added to the assignment</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "module_enrollment_date",
+            "description": "<p>Duration based assignments: will show the date the user was added to the module\n\n Scheduled assignments: will show the day the assignment was started/created, even if the user was added later</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "module_due_date",
+            "description": "<p>Due date of the module</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "userassignment_completion_date_time",
+            "description": "<p>Date when the user completed the assignment</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userassignmentstatus",
+            "description": "<p>Current status of the user's assignment. For example; Not Started</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentduedate",
+            "description": "<p>Date the assignment is due to be completed</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>The user's SSO ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignment_type",
+            "description": "<p>Type of assignment. For example: Duration</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignment_creation",
+            "description": "<p>Date the assignment was created</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "manageremailaddress",
+            "description": "<p>Email address of the user's manager</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "is_auto_enroll",
+            "description": "<p>Flag indicating whether the user was auto-enrolled in the module</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>Flag indicating whether the user is still active. (not deleted)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "modulename_admin",
+            "description": "<p>Name of the module as it appears to admin users</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "modulename_user",
+            "description": "<p>Name of the module as it appears to users</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "module_attempt_status",
+            "description": "<p>Current status of the module. For example: Overdue - Not Started</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "usermodule_completion_date_time",
+            "description": "<p>Date the user completed the module</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Free value tags (user properties)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "enrollmentremovaldate",
+            "description": "<p>Date the enrollment was soft deleted.</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "enrollmentremovalreason",
+            "description": "<p>Add this string parameter to cause the endpoint to return data that includes the reason the enrollment was removed based on the BtumDeletedReasons. Values  include (format is deletionReason,description):\n\n\nASSIGNMENT_DELETED,assignment deleted\nMODULE_REMOVED_FROM_ASSIGNMENT,module removed from assignment\nUSER_REMOVED_FROM_ASSIGNMENT,user removed from assignment\nUSER_DELETED,user deleted from company</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    },\n    \"links\": {\n        \"self\": \"/api/reporting/v0.1.0/trainingenrollments?filter%5B_assignmentname%5D=%5Btest+duration%5D&filter%5B_created_start%5D=2020-01-01&page%5Bsize%5D=5&page%5Bnumber%5D=1&filter%5B_data_privacy%5D=FALSE&filter%5B_userlastname%5D=%5BActiveUserBravoLast%5D&filter%5B_userfirstname%5D=%5BActiveUserBravo%2C+ActiveUserCharlie%5D&filter%5B_created_end%5D=2020-12-01&filter%5B_filter_status%5D=%5BNot+Started%5D&filter%5B_useremailaddress%5D=%5Bactiveuserbravo%40qlikbot.wombatqa.com%5D\"\n    },\n    \"data\": [\n        {\n            \"type\": \"fn_training_enrollments_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"module_id\": \"fe48f81255b084a53615518da688905a\",\n                \"user_id\": \"59137434\",\n                \"userfirstname\": \"ActiveUserBravo\",\n                \"userlastname\": \"ActiveUserBravoLast\",\n                \"useremailaddress\": \"activeuserbravo@qlikbot.wombatqa.com\",\n                \"assignment_id\": \"739e7ff51389e2eb31fee93b5e9e6f6e\",\n                \"assignmentname\": \"test duration\",\n                \"assignmentstartdate\": \"2020-06-04T00:00:00\",\n                \"module_enrollment_date\": \"2020-06-04T00:00:00\",\n                \"module_due_date\": \"2020-06-14T00:00:00\",\n                \"userassignment_completion_date_time\": null,\n                \"userassignmentstatus\": \"Not Started\",\n                \"assignmentduedate\": \"2020-06-14T00:00:00\",\n                \"sso_id\": null,\n                \"assignment_type\": \"Duration\",\n                \"assignment_creation\": \"2020-06-02T14:51:53\",\n                \"manageremailaddress\": null,\n                \"is_auto_enroll\": false,\n                \"useractiveflag\": true,\n                \"modulename_admin\": \"Avoiding Dangerous Links 20.10.2\",\n                \"modulename_user\": \"Avoiding Dangerous Links\",\n                \"module_attempt_status\": \"Overdue - Not Started\",\n                \"usermodule_completion_date_time\": null,\n                \"usertags\": null\n            }\n        }\n    ],\n    \"meta\": {\n        \"page_size\": \"5\",\n        \"page_number\": \"1\",\n        \"count\": 1\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/training_enrollments_framework_010.py",
+    "groupTitle": "API Endpoints"
+},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+    "type": "get",
+    "url": "/trainingenrollments",
+    "title": "TrainingEnrollments",
+    "version": "0.1.0",
+    "name": "TrainingEnrollmentsFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns information from the (beta) User Enrollments report, which contains recently active assignments and user status for the past 365 days. Contains functionality for a variety of filters. Please see the \"Parameter\" section of this documentation for more information on these filters.</p>",
+    "examples": [
+      {
+        "title": "Example usage: ",
+        "content": "https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10\nhttps://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]\nhttps://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[user_tag][Department]='Production'&user_tag_enable",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org] -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[user_tag][Department]='Production'&user_tag_enable -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set page_size=10\nset page_number=5\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=%page_number%&page[size]=%page_size%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt\n\nset useremailaddress=john.doe@example.org,jane.doe@example.org\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[%useremailaddress%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt\n\nset userproperty=Department\nset userpropertyvalue=Finance\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[user_tag]['%userproperty%']='%userpropertyvalue%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+         "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_created_start]",
+            "description": "<p>Filter by the start date of the user’s attempt at taking a training module.  <br />Format: ?filter[_created_start]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select _created_start 2018-01-01 to 2018-01-31 and _created_start of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_created_end]",
+            "description": "<p>Filter by the end date of the user’s attempt at taking a training module.  <br />Format: ?filter[_created_end]='YYYY-MM-DD'. Pairs of date filters are treated as &quot;OR&quot; operations. For example, if you select _created_end 2018-01-01 to 2018-01-31 and _created_end of 2018-06-01 to 2018-06-01, the API will return records for both sets.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_assignmentname]",
+            "description": "<p>Filter to select one or more assignment names. By default, all values are returned. <br/>Format: ?filter[_assignmentname]=[name]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br />Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_filter_status]",
+            "description": "<p>Filter to select one or more user assignment statuses. By default, all values are returned. Values include,  “Not Started, In Progress, Completed” takes an array of values. <br />Format: ?filter[_filter_status]=[statusname]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_userfirstname]",
+            "description": "<p>Filter to select one or more specific user first names. _userfirstname takes an array of values. <br />Format: ?filter[_userfirstname]=[PersonFirst, OtherPersonFirst...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_userlastname]",
+            "description": "<p>Filter to select one or more specific user last name. _userlastname takes an array of values. <br />Format: ?filter[_userlastname]=[PersonLast, OtherPersonLast...]</p>"
+
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_manageremailaddress]",
+            "description": "<p>Filter to select users with a matching manager email address. _manageremailaddress takes an array of values. <br />Format: ?filter[_manageremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Training Enrollments Field List (Success 200)": [
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator count in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "module_id",
+            "description": "<p>Hashed representation of the module ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User's first name</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User's last name</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>User's email address</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignment_id",
+            "description": "<p>Hashed representation of the assignment ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignmentname",
+            "description": "<p>Assignment Name</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentstartdate",
+            "description": "<p>Date the user was added to the assignment</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "module_enrollment_date",
+            "description": "<p>Date the user was added to the module</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "module_due_date",
+            "description": "<p>Due date of the module</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "userassignment_completion_date_time",
+            "description": "<p>Date when the user completed the assignment</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "userassignmentstatus",
+            "description": "<p>Current status of the user's assignment. For example; Not Started</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignmentduedate",
+            "description": "<p>Date the assignment is due to be completed</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>The user's SSO ID</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "assignment_type",
+            "description": "<p>Type of assignment. For example: Duration</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "assignment_creation",
+            "description": "<p>Date the assignment was created</p>"
+          },
+          {
+            "group": "Training Enrollments Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "manageremailaddress",
+            "description": "<p>Email address of the user's manager</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "is_auto_enroll",
+            "description": "<p>Flag indicating whether the user was auto-enrolled in the module</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>Flag indicating whether the user is still active. (not deleted)</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "modulename_admin",
+            "description": "<p>Name of the module as it appears to admin users</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "modulename_user",
+            "description": "<p>Name of the module as it appears to users</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "module_attempt_status",
+            "description": "<p>Current status of the module. For example: Overdue - Not Started</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Date",
+            "optional": false,
+            "field": "usermodule_completion_date_time",
+            "description": "<p>Date the user completed the module</p>"
+          },
+          {
+            "group": "Training Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Free value tags (user properties)</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    },\n    \"links\": {\n        \"self\": \"/api/reporting/v0.1.0/trainingenrollments?filter%5B_assignmentname%5D=%5Btest+duration%5D&filter%5B_created_start%5D=2020-01-01&page%5Bsize%5D=5&page%5Bnumber%5D=1&filter%5B_data_privacy%5D=FALSE&filter%5B_userlastname%5D=%5BActiveUserBravoLast%5D&filter%5B_userfirstname%5D=%5BActiveUserBravo%2C+ActiveUserCharlie%5D&filter%5B_created_end%5D=2020-12-01&filter%5B_filter_status%5D=%5BNot+Started%5D&filter%5B_useremailaddress%5D=%5Bactiveuserbravo%40qlikbot.wombatqa.com%5D\"\n    },\n    \"data\": [\n        {\n            \"type\": \"fn_training_enrollments_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"module_id\": \"fe48f81255b084a53615518da688905a\",\n                \"user_id\": \"59137434\",\n                \"userfirstname\": \"ActiveUserBravo\",\n                \"userlastname\": \"ActiveUserBravoLast\",\n                \"useremailaddress\": \"activeuserbravo@qlikbot.wombatqa.com\",\n                \"assignment_id\": \"739e7ff51389e2eb31fee93b5e9e6f6e\",\n                \"assignmentname\": \"test duration\",\n                \"assignmentstartdate\": \"2020-06-04T00:00:00\",\n                \"module_enrollment_date\": \"2020-06-04T00:00:00\",\n                \"module_due_date\": \"2020-06-14T00:00:00\",\n                \"userassignment_completion_date_time\": null,\n                \"userassignmentstatus\": \"Not Started\",\n                \"assignmentduedate\": \"2020-06-14T00:00:00\",\n                \"sso_id\": null,\n                \"assignment_type\": \"Duration\",\n                \"assignment_creation\": \"2020-06-02T14:51:53\",\n                \"manageremailaddress\": null,\n                \"is_auto_enroll\": false,\n                \"useractiveflag\": true,\n                \"modulename_admin\": \"Avoiding Dangerous Links 20.10.2\",\n                \"modulename_user\": \"Avoiding Dangerous Links\",\n                \"module_attempt_status\": \"Overdue - Not Started\",\n                \"usermodule_completion_date_time\": null,\n                \"usertags\": null\n            }\n        }\n    ],\n    \"meta\": {\n        \"page_size\": \"5\",\n        \"page_number\": \"1\",\n        \"count\": 1\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/training_enrollments_framework_010.py",
+    "groupTitle": "API Endpoints"
+},
+  {
+    "type": "get",
+    "url": "/users",
+    "title": "Users",
+    "version": "0.1.0",
+    "name": "UsersFunction",
+    "group": "API_Endpoints",
+    "description": "<p>Returns user information. Contains functionality for an email filter, and enabling / disabling of users' tag information. Please see the &quot;Parameter&quot; section of this documentation for more information on these filters.</p><p><code>Reminder!</code> In the below examples the results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. if you were setting up API endpoints for Users for your US platform environment, you would replace host.server:port with results.us.securityeducation.com. Typically customers platform accounts correspond to their geographic region.  If you have any questions as to which environment your platform account is set up on, please ask your Platform Admin or Proofpoint Customer Success Manager or Customer Support.<br/></p></p>",
+    "examples": [
+      {
+        "title": "Example usage: ",
+        "content": "https://host.server:port/api/reporting/v0.1.0/users?filter[a]=b&page[number]=#&page[size]=#\nhttps://host.server:port/api/reporting/v0.1.0/users?filter[_includedeletedusers]=TRUE&page[number]=4&page[size]=10\nhttps://host.server:port/api/reporting/v0.1.0/users?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org]\nhttps://host.server:port/api/reporting/v0.1.0/users?filter[user_tag][Department]='Production'&user_tag_enable",
+        "type": "json"
+      },
+      {
+        "title": "cURL and Bash:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/users -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/users?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/users?filter[_includedeletedusers]=TRUE&page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/users?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org] -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/users?filter[user_tag][Department]='Production'&user_tag_enable -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "cURL (Command Line):",
+        "content": "set page_size=10\nset page_number=5\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/users?page[number]=%page_number%&page[size]=%page_size%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >users.txt\n\nset userproperty=Department\nset userpropertyvalue=Finance\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/users?filter[user_tag]['%userproperty%']='%userpropertyvalue%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >users.txt\n\nset useremailaddress=john.doe@example.org,jane.doe@example.org\nset includedeletedusers=TRUE\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/users?filter[_useremailaddress]=[%useremailaddress%]&filter[_includedeletedusers]=%includedeletedusers%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >users.txt",
+        "type": "json"
+      }
+    ],
+    "permission": [
+      {
+        "name": "SuperAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingAdmin"
+      },
+      {
+        "name": "or"
+      },
+      {
+        "name": "ReportingApi"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Accept",
+            "description": "<p>Accepted content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "description": "<p>Returned content type.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "x-apikey-token",
+            "description": "<p>User's access token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[number]",
+            "description": "<p>Select page number, if pagination desired. Pagination is enabled by default.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page[size]",
+            "description": "<p>Select page size, if pagination desired. Default is 20 records.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": true,
+            "field": "filter[_useremailaddress]",
+            "description": "<p>Filter to select one or more specific email addresses. Email address takes an array of values. <br />Format: ?filter[_useremailaddress]=[a@b.com, b@c.com...]</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[_includedeletedusers]",
+            "description": "<p>Filter to include deleted users. Default value is “FALSE”. <br />Format: ?filter[_includedeletedusers]=TRUE/FALSE.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "filter[user_tag]",
+            "description": "<p>The user_tag filter allows you to filter on a specific free value tag (formerly called “custom user properties.” For this filter, provide your tag (custom property)  <br />Format: &quot;?filter[user_tag][tag_name]='tag_value'. There must be single quotes around your tag value, or you will get a query error. Using this filter automatically enables user tags (see user_tag_enable, below).</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "user_tag_enable",
+            "description": "<p>Add this query string parameter to cause the endpoint to return users' free value tags (formerly “custom user properties”) with each entry. Default value is “TRUE”. Values include “TRUE” and “FALSE”.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Users Field List (Success 200)": [
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Iterator count in result set; not a unique identifier</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "useremailaddress",
+            "description": "<p>User email address</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userfirstname",
+            "description": "<p>User first name</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlastname",
+            "description": "<p>User last name</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userlocale",
+            "description": "<p>Locale specific to the user (language and location)</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "usertimezone",
+            "description": "<p>User time zone</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "Boolean",
+            "optional": false,
+            "field": "useractiveflag",
+            "description": "<p>true/false field indicating whether the user is active</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "userdeleteddaate",
+            "description": "<p>Date the user was deleted</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "datalastupdated",
+            "description": "<p>Timestamp of when the data was last refreshed in the data warehouse</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "Dictionary",
+            "optional": false,
+            "field": "usertags",
+            "description": "<p>Free value tags (user properties)</p>"
+          },
+          {
+            "group": "Users Field List (Success 200)",
+            "type": "String",
+            "optional": false,
+            "field": "sso_id",
+            "description": "<p>Identifier provided by your single sign on system for the user.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"data\": [\n        {\n            \"type\": \"fn_user_v1\",\n            \"id\": 1,\n            \"attributes\": {\n                \"useremailaddress\": \"email_0972@wombank.com\",\n                \"userfirstname\": \"Firs0972st\",\n                \"userlastname\": \"Las0972st\",\n                \"userlocale\": \"default\",\n                \"usertimezone\": \"America/New_York\",\n                \"useractiveflag\": true,\n                \"userdeleteddate\":\"2017-01-01\",\n                \"datalastupdated\":\"2017-01-01T08:00:09-04:00\",\n                \"usertags\": null,\n                \"sso_id\": null\n            }\n        }\n    ],\n    \"meta\": {\n        \"page_size\": 20,\n        \"page_number\": 1,\n        \"count\": 1\n    },\n    \"links\": {\n        \"self\": \"/api/reporting/v0.1.0/users?filter=%7B%22useremailaddress_in%22%3A%5B%22email_0972%40wombank.com%22%5D%7D\"\n    },\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "401",
+            "description": "<p>Authorization Error, Missing Authorization Header, Expired Token</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "402",
+            "description": "<p>API Budget Empty</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "type": "json",
+            "optional": false,
+            "field": "422",
+            "description": "<p>Invalid Token, Token Decode Error, Invalid Header</p>"
+          }
+        ],
+        "Error 5xx": [
+          {
+            "group": "Error 5xx",
+            "type": "json",
+            "optional": false,
+            "field": "500",
+            "description": "<p>Database Error, Internal Server Error</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Example response:",
+          "content": "{\n    \"errors\": [\n        {\n            \"detail\": \"No API requests remaining in budget.\"\n            \"source\": {},\n            \"status\": 402\n            \"title\": \"API Budget Empty\"\n        }\n    ],\n    \"jsonapi\": {\n        \"version\": \"1.0\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "reporting/documentation/latest/user_framework_010.py",
+    "groupTitle": "API Endpoints"
+  },
+  {
+    "type": "post",
+    "title": "Using cURL and Bash",
+    "version": "0.1.0",
+    "name": "ExampleUsageBash",
+    "group": "Code_Samples",
+    "description": "<p>You have many options to perform integration to the reporting API. A relatively basic and easy way to test your tokens, connection to the API, and to retrieve basic data using Bash and cURL. <br/></p> <p><b>Bash</b></p> <p>Bash is a Unix shell and command language that provides a command line console. Some versions of Windows (including Windows 10 and Windows Server 2019) include Windows Subsystem for Linux (WSL), which is a compatibility layer allows you to run native Linux command-line tools, including Bash. Apple and Linux machines typically contain a Bash shell out of the box.</p> <p><b>cURL</b></p> <p>cURL is a command line tool for sending or retrieving data or files by using URL syntax.</p> <p>Open a command line editor, or your preferred development environment.</p> <p><b>Sample</b></p> <pre class=\"prettyprint language-html prettyprinted\" data-type=\"get\" style=\"\"><code><span class=\"pln\" wfd-id=\"2166\">#!/bin/bash <br/>curl -X GET https://results_api_domain/api/reporting/v0.1.0/<span class=\"str\">endpoint</span> -g --header \"x-apikey-token: $token\"| json_pp </span> </code></pre> <p><code>results_api_domain</code> The results API domain is specific to our three regional environments. For the US it is results.us.securityeducation.com, EU results.eu.securityeducation.com, and AP results.ap.securityeducation.com <br/> endpoint is one of the provided endpoints, e.g. CyberStrength, PhishAlarm, Phishing, Training, and Users <br/></p> <br/> <table> <thead>         <tr>             <th style=\"width: 40%\">#!/bin/bash</th>             <th style=\"width: 60%\">Standard bash opening</th>         </tr> </thead> <tbody>                  <tr>             <td class=\"code\">curl -X GET https://results_api_domain/api/reporting/v0.1.0/phishing -g --header \"x-apikey-token: $token\"| json_pp </td>             <td>This line makes the call to the API to retrieve data (in JSON format), and parses into a more human-readable format. <br/> For pure JSON, remove <code> | json_pp </code></td>         </tr>     </tbody> </table>",
+    "examples": [
+      {
+        "title": "Example usage by endpoint:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/phishing -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "CyberStrength:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/cyberstrength -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "PhishAlarm:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/phishalarm -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "Phishing:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/phishing -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "Training:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/training -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "Users:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/users -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      },
+      {
+        "title": "TrainingEnrollments:",
+        "content": "curl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=4&page[size]=10 -g \\\n--header \"x-apikey-token: $token\"| json_pp\n\ncurl -X GET https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[john.doe@example.org, jane.doe@example.org] -g \\\n--header \"x-apikey-token: $token\"| json_pp",
+        "type": "json"
+      }
+    ],
+    "filename": "reporting/documentation/latest/curl_usage.py",
+    "groupTitle": "Code Samples"
+  },
+  {
+    "type": "post",
+    "title": "Using cURL in Command Line Script",
+    "version": "0.1.0",
+    "name": "ExampleUsageCmd",
+    "group": "Code_Samples",
+    "description": "<p>Using a command prompt, you can use the following samples as a basis for returning data from each of the endpoints. These samples are also in the documentation for each endpoint above. <br/></p> <p>In all examples, <code>results_api_domain</code> should be replaced with your region's results domain. </p> <p><b>Sample</b></p> <p>The following will store filter information in environment variables (e.g. assignmentstart), then sends the request to the endpoint (e.g. cyberstrength) and stores the result in a file called <code>cyberstrength</code>.txt: </p> <pre class=\"prettyprint language-json prettyprinted\" data-type=\"json\" style=\"\"><code><span class=\"pln\" wfd-id=\"93\">set assignmentstart</span><span class=\"pun\" wfd-id=\"92\">=</span><span class=\"lit\" wfd-id=\"91\">2018</span><span class=\"pun\" wfd-id=\"90\">-</span><span class=\"lit\" wfd-id=\"89\">01</span><span class=\"pun\" wfd-id=\"88\">-</span><span class=\"lit\" wfd-id=\"87\">01</span><span class=\"pln\" wfd-id=\"86\"> <br/>set assignmentend</span><span class=\"pun\" wfd-id=\"85\">=</span><span class=\"lit\" wfd-id=\"84\">2018</span><span class=\"pun\" wfd-id=\"83\">-</span><span class=\"lit\" wfd-id=\"82\">03</span><span class=\"pun\" wfd-id=\"81\">-</span><span class=\"lit\" wfd-id=\"80\">01</span><span class=\"pln\" wfd-id=\"79\"> <br/>curl </span><span class=\"pun\" wfd-id=\"78\">-</span><span class=\"pln\" wfd-id=\"77\">X GET </span><span class=\"pun\" wfd-id=\"76\">^</span><span class=\"pln\" wfd-id=\"75\"> </span><span class=\"str\" wfd-id=\"74\">\"https://results_api_domain/api/reporting/v0.1.0/cyberstrength?filter[_assignmentstartdate_start]='%assignmentstart%'&amp;filter[_assignmentstartdate_end]='%assignmentend%'\"</span><span class=\"pln\" wfd-id=\"73\"> </span><span class=\"pun\" wfd-id=\"72\">-</span><span class=\"pln\" wfd-id=\"71\">g</span><span class=\"pun\" wfd-id=\"70\">^</span><span class=\"pln\" wfd-id=\"69\"> </span> <br/><span class=\"pun\" wfd-id=\"68\">-</span><span class=\"pln\" wfd-id=\"67\">H </span><span class=\"str\" wfd-id=\"66\">\"Accept: application/json\"</span><span class=\"pln\" wfd-id=\"65\"> </span><span class=\"pun\" wfd-id=\"64\">^</span><span class=\"pln\" wfd-id=\"63\"></span> <br/><span class=\"pun\" wfd-id=\"62\">-</span><span class=\"pln\" wfd-id=\"61\">H </span><span class=\"str\" wfd-id=\"60\">\"x-apikey-token: %accesstoken%\"</span><span class=\"pln\" wfd-id=\"59\"> </span><span class=\"pun\" wfd-id=\"58\">^</span><span class=\"pln\" wfd-id=\"57\"></span> <br/><span class=\"pun\" wfd-id=\"56\">-</span><span class=\"pln\" wfd-id=\"55\">H </span><span class=\"str\" wfd-id=\"54\">\"Content-Type: application/json\"</span><span class=\"pln\" wfd-id=\"53\"> </span><span class=\"pun\" wfd-id=\"52\">&gt;</span><span class=\"pln\" wfd-id=\"51\">cyberstrength</span><span class=\"pun\" wfd-id=\"50\">.</span><span class=\"pln\" wfd-id=\"49\">txt</span></code></pre>",
+    "examples": [
+      {
+        "title": "Example usage by endpoint:",
+        "content": "curl -X GET ^\n\"https://results_api_domain/api/reporting/v0.1.0/cyberstrength\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >cyberstrength.txt",
+        "type": "json"
+      },
+      {
+        "title": "CyberStrength:",
+        "content": "set assignmentstart=2018-01-01\nset assignmentend=2018-03-01\ncurl -X GET ^\n\"https://results_api_domain/api/reporting/v0.1.0/cyberstrength?filter[_assignmentstartdate_start]='%assignmentstart%'&filter[_assignmentstartdate_end]='%assignmentend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >cyberstrength.txt",
+        "type": "json"
+      },
+      {
+        "title": "PhishAlarm:",
+        "content": "set reportedstart=2018-01-01\nset reportedend=2018-03-01\ncurl -X GET ^\n\"https://results_api_domain/api/reporting/v0.1.0/phishalarm?filter[_reporteddate_start]='%reportedstart%'&filter[_reporteddate_end]='%reportedend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishalarm.txt",
+        "type": "json"
+      },
+      {
+        "title": "Phishing:",
+        "content": "set campaignstart=2018-01-01\nset campaignend=2018-03-01\ncurl -X GET ^\n\"https://results_api_domain/api/reporting/v0.1.0/phishing?filter[_campaignstartdate_start]='%campaignstart%'&filter[_campaignstartdate_end]='%campaignend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >phishing.txt",
+        "type": "json"
+      },
+      {
+        "title": "Training:",
+        "content": "set assignmentstart=2018-01-01\nset assignmentend=2018-03-01\ncurl -X GET ^\n\"https://results_api_domain/api/reporting/v0.1.0/training?filter[_assignmentstartdate_start]='%assignmentstart%'&filter[_assignmentstartdate_end]='%assignmentend%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >training.txt",
+        "type": "json"
+      },
+      {
+        "title": "Users:",
+        "content": "set userproperty=Department\nset userpropertyvalue=Finance\ncurl -X GET ^\n\"https://results_api_domain/api/reporting/v0.1.0/users?filter[user_tag]['%userproperty%']='%userpropertyvalue%'\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >users.txt",
+        "type": "json"
+      },
+      {
+        "title": "Training Enrollments:",
+        "content": "set page_size=10\nset page_number=5\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?page[number]=%page_number%&page[size]=%page_size%\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt\n\nset useremailaddress=john.doe@example.org,jane.doe@example.org\ncurl -X GET ^\n\"https://host.server:port/api/reporting/v0.1.0/trainingenrollments?filter[_useremailaddress]=[%useremailaddress%]\" -g^\n-H \"Accept: application/json\" ^\n-H \"x-apikey-token: %accesstoken%\" ^\n-H \"Content-Type: application/json\" >trainingenrollments.txt",
+        "type": "json"
+      }
+    ],
+    "filename": "reporting/documentation/latest/curl_usage_cmd.py",
+    "groupTitle": "Code Samples"
+  }
+]

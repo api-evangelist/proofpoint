@@ -1,0 +1,142 @@
+generated: '2026-09-13'
+method: searched
+source: 'Proofpoint public API documentation (help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/*,
+  help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API,
+  apidocs.emergingthreats.net, proofpoint.securityeducation.com/api/reporting/documentation/)'
+note: 'Cross-cutting semantics for the Proofpoint estate, read from the documentation
+  rather than from a specification — Proofpoint publishes none. The single most important
+  fact for an agent is the shape of the surface: with one exception every documented
+  Proofpoint API operation is a READ. There is no create, update or delete in the public
+  contract, which is what makes idempotency, reversibility and dry-run all `na` below
+  rather than zero.'
+surface_shape:
+  read_operations: 'All of TAP (SIEM, Campaign, Forensics, People, Threat), all of the
+    Threat Protection Dashboard Reports API, all 36 ET Intelligence endpoints, all six
+    ZenGuide Results endpoints, all of Proofpoint Essentials SIEM.'
+  write_operations:
+  - api: proofpoint-secure-email-relay
+    operation: email submission (POST a message to mail.ser.proofpoint.com)
+    note: The only public mutating operation on the estate, and its effect — sending mail
+      — is inherently irreversible once accepted.
+  - api: proofpoint-tap
+    operation: POST /v2/url/decode
+    note: 'Nominally a POST but semantically a read: it decodes URL Defense-rewritten
+      URLs and changes no server state.'
+auth_style:
+  summary: Three non-interchangeable models — HTTP Basic (TAP, Essentials), OAuth 2.0
+    client credentials (Reports, SER), raw API key in the Authorization header (ET
+    Intelligence).
+  see: authentication/proofpoint-authentication.yml
+idempotency:
+  coverage: na
+  mechanism: none
+  header: null
+  scope: []
+  note: 'No Idempotency-Key header, request-id de-duplication or replay window is
+    documented on any Proofpoint surface. This is recorded as `na` rather than `none`
+    because the public contract is read-only apart from Secure Email Relay email
+    submission: there is almost nothing to double-fire. The honest gap is SER — a
+    transactional email API with no documented idempotency key is a real replay risk,
+    and it is the one place a key would matter.'
+  gap:
+    api: proofpoint-secure-email-relay
+    detail: Email submission has no documented de-duplication mechanism; a retried
+      submission after a timeout may deliver the message twice.
+reversibility:
+  grade: na
+  note: 'The public API surface has no write operations to reverse. The one exception —
+    SER email submission — has no documented cancel, recall, void or undo operation and
+    no window inside which one would work; mail accepted for relay is gone. No window is
+    asserted here because Proofpoint states none.'
+  reversal_operations: []
+dry_run_mode:
+  supported: na
+  note: No dry-run, validate-only or preview mode is documented. Read-only surface.
+pagination:
+  style: page-number
+  applies_to:
+  - api: proofpoint-tap
+    endpoints: [/v2/campaign/ids, /v2/people/top-clickers]
+    params:
+      page: 1-based page number, defaults to 1
+      size: page size, defaults to 100, maximum 200
+  not_supported:
+  - api: proofpoint-tap
+    endpoints: [/v2/siem/*]
+    detail: 'Documented explicitly: "No paging support is available; all the applicable
+      events in the requested time period will be returned in the log." Volume is bounded
+      by the time window instead — maximum one hour per request.'
+  response_fields: []
+  response_fields_note: No total-count, next-cursor or link header is documented; a
+    client cannot tell whether another page exists except by requesting it.
+time_windowing:
+  note: The dominant Proofpoint pagination substitute is a time window, not a cursor.
+  params:
+  - name: interval
+    format: ISO 8601 interval, e.g. 2016-05-01T12:00:00Z/2016-05-01T13:00:00Z or
+      PT30M/2016-05-01T12:30:00Z
+    min: 30 seconds
+    max: 1 hour (SIEM) / 1 day (Campaign)
+  - name: sinceSeconds
+    format: integer seconds back from current API server time, rounded to the nearest
+      minute
+  - name: sinceTime
+    format: ISO 8601 start instant; end is current API server time rounded to the nearest
+      minute
+  retention: Maximum 7 days into the past (SIEM).
+  ordering: 'Explicitly unordered: "The results provided by this API may not be in any
+    logical order."'
+  semantics_warning: 'Event time is INGEST time, not occurrence time. A sinceSeconds=3600
+    query returns events created in the last hour, which may reference messages or clicks
+    first observed days earlier. Clients that treat the window as occurrence time will
+    silently mis-attribute events.'
+  overlap: 'Overlapping intervals may return duplicate records — de-duplication is the
+    client''s responsibility, and there is no idempotency or event-id guarantee to do it
+    with beyond the documented event fields.'
+filtering:
+  - api: proofpoint-tap
+    params: [threatType (url|attachment|messageText), threatStatus (active|cleared|falsePositive)]
+    note: Repeatable query parameters; omitting threatStatus returns active and cleared
+      but not falsePositive.
+  - api: proofpoint-psat-results
+    style: bracketed filter parameters, e.g. filter[_useremailaddress]=[...]
+    note: The published apiDoc carries an appendix on URL-encoding these filter values,
+      which is where the encoding rules for the ZenGuide Results API live.
+content_negotiation:
+  - api: proofpoint-tap
+    param: format
+    values: [syslog, JSON]
+    default: syslog
+    note: 'Negotiation is by query parameter, not by Accept header. The syslog rendering
+      conforms to RFC 5424 with all data in the structured-data field and a blank MSG
+      field; events are CRLF-delimited.'
+versioning:
+  style: path
+  current:
+  - api: proofpoint-tap
+    version: v2
+  - api: proofpoint-threat-protection-reports
+    version: v1
+  - api: proofpoint-et-intelligence
+    version: v1
+  - api: proofpoint-psat-results
+    version: v0.3.0
+  note: See lifecycle/proofpoint-lifecycle.yml.
+request_id_tracing:
+  supported: false
+  note: No request-id or correlation header is documented on any surface.
+rate_limit_signaling:
+  headers: []
+  note: 'Limits are published in prose but never signalled at runtime — no X-RateLimit-*,
+    no RateLimit-*, no Retry-After. See rate-limits/proofpoint-rate-limits.yml.'
+error_envelope:
+  shape: 'HTTP status only, except ET Intelligence which returns {"error": "..."}.'
+  rfc9457: false
+  see: errors/proofpoint-error-codes.yml
+field_expansion:
+  supported: partial
+  detail: 'Only one documented case: /v2/forensics accepts includeCampaignForensics=true
+    to fold campaign-level evidence into a threat-level response.'
+metadata:
+  supported: false
+  note: No customer-defined metadata or tagging is accepted on any request.
