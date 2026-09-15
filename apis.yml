@@ -1,16 +1,14 @@
 aid: proofpoint
 name: Proofpoint
-description: 'Proofpoint is an enterprise cybersecurity company focused on human-centric
-  security — email and collaboration security, data loss prevention, insider threat
-  management, digital communications governance, security awareness training and threat
-  intelligence. Its public API surface is substantial but gateway-shaped rather than
-  developer-portal-shaped: the Targeted Attack Protection (TAP) v2 API, the Threat
-  Protection dashboard Reports API, the Emerging Threats (ET) Intelligence Query API,
-  the ZenGuide / Security Awareness Training Results API, the Secure Email Relay email
-  submission API, the Proofpoint Essentials SIEM API and the Proofpoint on Demand (PoD)
-  log stream. Every one of them is documented in public HTML and every one of them is
-  credential-gated at runtime; Proofpoint publishes no OpenAPI, AsyncAPI, GraphQL or
-  MCP contract for any of them.'
+description: 'Proofpoint is an enterprise cybersecurity company focused on human-centric security — email
+  and collaboration security, data loss prevention, insider threat management, digital communications
+  governance, security awareness training and threat intelligence. Its public API surface is substantial
+  but gateway-shaped rather than developer-portal-shaped: the Targeted Attack Protection (TAP) v2 API,
+  the Threat Protection dashboard Reports API, the Emerging Threats (ET) Intelligence Query API, the ZenGuide
+  / Security Awareness Training Results API, the Secure Email Relay email submission API, the Proofpoint
+  Essentials SIEM API and the Proofpoint on Demand (PoD) log stream. Every one of them is documented in
+  public HTML and every one of them is credential-gated at runtime; Proofpoint publishes no OpenAPI, AsyncAPI,
+  GraphQL or MCP contract for any of them.'
 url: https://raw.githubusercontent.com/api-evangelist/proofpoint/refs/heads/main/apis.yml
 image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
 x-type: company
@@ -30,15 +28,14 @@ tags:
 - Compliance
 - Email
 apis:
-- aid: proofpoint-tap
+- aid: proofpoint:proofpoint-tap
   name: Proofpoint Targeted Attack Protection (TAP) API v2
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'The TAP v2 API exposes the Threat Insight Dashboard to machines: SIEM
-    event download (blocked/permitted clicks, blocked/delivered messages, issues, all),
-    campaign identifiers and detail, forensic evidence for a threat or campaign, Very
-    Attacked People and top-clicker rosters, threat summaries and URL Defense decoding.
-    All endpoints are GET (URL Decoder is POST) over HTTPS with HTTP Basic authentication
-    using a service principal and secret minted in the TAP Settings page.'
+  description: 'The TAP v2 API exposes the Threat Insight Dashboard to machines: SIEM event download (blocked/permitted
+    clicks, blocked/delivered messages, issues, all), campaign identifiers and detail, forensic evidence
+    for a threat or campaign, Very Attacked People and top-clicker rosters, threat summaries and URL Defense
+    decoding. All endpoints are GET (URL Decoder is POST) over HTTPS with HTTP Basic authentication using
+    a service principal and secret minted in the TAP Settings page.'
   humanURL: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation
   baseURL: https://tap-api-v2.proofpoint.com/v2
   tags:
@@ -56,15 +53,14 @@ apis:
     url: rate-limits/proofpoint-rate-limits.yml
   - type: Authentication
     url: authentication/proofpoint-authentication.yml
-- aid: proofpoint-threat-protection-reports
+- aid: proofpoint:proofpoint-threat-protection-reports
   name: Proofpoint Threat Protection Dashboard Reports API v1
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'The Dashboard Reports API returns the same executive-summary,
-    effectiveness, people, organization and threat-landscape report cards the Threat
-    Protection dashboard renders, plus mail-bomb (email bomb) events. It is the newer
-    of the two Proofpoint threat APIs and the only one using OAuth 2.0 client
-    credentials: an API key and secret are exchanged at https://auth.proofpoint.com/v1/token
-    for a one-hour Bearer token.'
+  description: 'The Dashboard Reports API returns the same executive-summary, effectiveness, people, organization
+    and threat-landscape report cards the Threat Protection dashboard renders, plus mail-bomb (email bomb)
+    events. It is the newer of the two Proofpoint threat APIs and the only one using OAuth 2.0 client
+    credentials: an API key and secret are exchanged at https://auth.proofpoint.com/v1/token for a one-hour
+    Bearer token.'
   humanURL: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/Reports_API
   baseURL: https://threatprotection-api.proofpoint.com/api/v1/dash/reports
   tags:
@@ -80,15 +76,14 @@ apis:
     url: authentication/proofpoint-authentication.yml
   - type: RateLimits
     url: rate-limits/proofpoint-rate-limits.yml
-- aid: proofpoint-et-intelligence
+- aid: proofpoint:proofpoint-et-intelligence
   name: Emerging Threats (ET) Intelligence Query API v1
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'The ET Intelligence Query API is Proofpoint''s threat-intelligence
-    lookup service, reached at api.emergingthreats.net. Thirty-six documented GET
-    endpoints pivot across domains, IP addresses, malware samples (by MD5), Suricata/Snort
-    signature IDs, CVEs, malware families, threat actors and reputation categories.
-    Authentication is a single API key sent in the Authorization header; the default
-    rate is 200 queries per minute per key.'
+  description: The ET Intelligence Query API is Proofpoint's threat-intelligence lookup service, reached
+    at api.emergingthreats.net. Thirty-six documented GET endpoints pivot across domains, IP addresses,
+    malware samples (by MD5), Suricata/Snort signature IDs, CVEs, malware families, threat actors and
+    reputation categories. Authentication is a single API key sent in the Authorization header; the default
+    rate is 200 queries per minute per key.
   humanURL: https://apidocs.emergingthreats.net/
   baseURL: https://api.emergingthreats.net/v1
   tags:
@@ -104,15 +99,14 @@ apis:
     url: https://etadmin.proofpoint.com/api-access
   - type: RateLimits
     url: rate-limits/proofpoint-rate-limits.yml
-- aid: proofpoint-psat-results
+- aid: proofpoint:proofpoint-psat-results
   name: Proofpoint Security Awareness Training (ZenGuide) Results API
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'The Results API exports Security Awareness Training outcomes for
-    business-intelligence and LMS integration: CyberStrength knowledge assessments,
-    PhishAlarm reports, ThreatSim simulated-phishing events, training assignments,
-    training enrollments and users. Proofpoint publishes a machine-readable apiDoc
-    description of it — the only machine-readable contract found anywhere on the
-    Proofpoint estate — alongside the rendered reference.'
+  description: 'The Results API exports Security Awareness Training outcomes for business-intelligence
+    and LMS integration: CyberStrength knowledge assessments, PhishAlarm reports, ThreatSim simulated-phishing
+    events, training assignments, training enrollments and users. Proofpoint publishes a machine-readable
+    apiDoc description of it — the only machine-readable contract found anywhere on the Proofpoint estate
+    — alongside the rendered reference.'
   humanURL: https://proofpoint.securityeducation.com/api/reporting/documentation/
   baseURL: https://results.us.securityeducation.com/api/reporting/v0.3.0
   tags:
@@ -128,14 +122,13 @@ apis:
     url: apidoc/proofpoint-psat-results-api_project.json
   - type: DataModel
     url: data-model/proofpoint-data-model.yml
-- aid: proofpoint-secure-email-relay
+- aid: proofpoint:proofpoint-secure-email-relay
   name: Proofpoint Secure Email Relay (SER) Email Submission API
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'Secure Email Relay lets applications send authenticated transactional
-    mail through Proofpoint rather than through an unmanaged relay, which is what
-    makes a strict DMARC policy achievable. The Email Submission API accepts a message
-    at mail.ser.proofpoint.com after an OAuth client-credential exchange; Proofpoint
-    ships first-party client libraries for Python, Java and .NET against it.'
+  description: Secure Email Relay lets applications send authenticated transactional mail through Proofpoint
+    rather than through an unmanaged relay, which is what makes a strict DMARC policy achievable. The
+    Email Submission API accepts a message at mail.ser.proofpoint.com after an OAuth client-credential
+    exchange; Proofpoint ships first-party client libraries for Python, Java and .NET against it.
   humanURL: https://api-docs.ser.proofpoint.com/docs/email-submission
   baseURL: https://mail.ser.proofpoint.com
   tags:
@@ -147,14 +140,13 @@ apis:
     url: https://api-docs.ser.proofpoint.com/docs/email-submission
   - type: SDKs
     url: packages/proofpoint-packages.yml
-- aid: proofpoint-essentials-siem
+- aid: proofpoint:proofpoint-essentials-siem
   name: Proofpoint Essentials Threat (SIEM) API
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'Proofpoint Essentials — the SMB and MSP edition of the platform —
-    exposes the same /v2/siem shape as TAP on its own regional hosts, returning blocked
-    and permitted clicks and blocked and delivered messages in syslog or JSON for
-    SIEM ingestion. HTTP Basic with a service principal and secret, GET only, same
-    rolling 24-hour throttle.'
+  description: Proofpoint Essentials — the SMB and MSP edition of the platform — exposes the same /v2/siem
+    shape as TAP on its own regional hosts, returning blocked and permitted clicks and blocked and delivered
+    messages in syslog or JSON for SIEM ingestion. HTTP Basic with a service principal and secret, GET
+    only, same rolling 24-hour throttle.
   humanURL: https://help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API
   baseURL: https://us-siem.proofpointessentials.com/v2
   tags:
@@ -166,15 +158,14 @@ apis:
     url: https://help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API
   - type: Authentication
     url: authentication/proofpoint-authentication.yml
-- aid: proofpoint-pod-log
+- aid: proofpoint:proofpoint-pod-log
   name: Proofpoint on Demand (PoD) Log API
   image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
-  description: 'The PoD Log API is Proofpoint''s streaming surface rather than a
-    request/response one: a client opens a WebSocket to logstream.proofpoint.com and
-    subscribes to either the filter (message) log or the MTA (maillog) stream, then
-    receives events continuously. It is the only event-shaped Proofpoint API, and it
-    is the one whose documentation is not public — help.proofpoint.com redirects the
-    PoD Log API article to a customer login.'
+  description: 'The PoD Log API is Proofpoint''s streaming surface rather than a request/response one:
+    a client opens a WebSocket to logstream.proofpoint.com and subscribes to either the filter (message)
+    log or the MTA (maillog) stream, then receives events continuously. It is the only event-shaped Proofpoint
+    API, and it is the one whose documentation is not public — help.proofpoint.com redirects the PoD Log
+    API article to a customer login.'
   humanURL: https://help.proofpoint.com/Proofpoint_on_Demand/Log_API
   baseURL: https://logstream.proofpoint.com
   tags:
@@ -254,11 +245,10 @@ x-enrichment:
 x-coverage:
   state: covered
   reason: null
-  detail: 'Seven public Proofpoint APIs were documented from the provider''s own public
-    reference pages and every artifact below is grounded in a fetched URL. The one wall
-    hit was narrow and is recorded in lifecycle/: the Proofpoint on Demand Log API
-    article and the help.proofpoint.com section indexes 302 to a customer login while
-    their leaf articles stay public.'
+  detail: 'Seven public Proofpoint APIs were documented from the provider''s own public reference pages
+    and every artifact below is grounded in a fetched URL. The one wall hit was narrow and is recorded
+    in lifecycle/: the Proofpoint on Demand Log API article and the help.proofpoint.com section indexes
+    302 to a customer login while their leaf articles stay public.'
   evidence:
   - url: https://help.proofpoint.com/Threat_Insight_Dashboard/API_Documentation/SIEM_API
     status: 200
