@@ -1,0 +1,38 @@
+# Front Door AI Index — proofpoint — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: proofpoint
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: www.proofpoint.com
+  final_host: www.proofpoint.com
+  ownership: own
+  owner: proofpoint
+  shares_host_with:
+  - illusive-networks
+  - observeit-proofpoint
+  inherited_from: null
+  verdict: scored
+  score: 52
+  host_score: 52
+  density: 36.39
+  words: 1429
+  tiers:
+    agentic: 15
+    core: 35
+    model: 2
+  ambiguous: 18
+  top_terms:
+    AI: 33
+    agent: 15
+    AI agent: 5
+    MCP: 3
+    agentic: 3
+    Claude: 2
+    gen ai: 2
+    intelligence: 2
+    prompts: 2
+    autonomous agent: 1
+    copilot: 1
+    smart: 1
