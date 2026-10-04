@@ -10,6 +10,21 @@ description: 'Proofpoint is an enterprise cybersecurity company focused on human
   public HTML and every one of them is credential-gated at runtime; Proofpoint publishes no OpenAPI, AsyncAPI,
   GraphQL or MCP contract for any of them.'
 url: https://raw.githubusercontent.com/api-evangelist/proofpoint/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  license_evidence:
+    not_product:
+    - emergingthreats/query-api-docs
+  open_source: unknown
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: low
+  source:
+  - pricing
+  - repository-not-product
+  generated: '2026-09-25'
+  method: derived
 image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-logos/proofpoint.png
 x-type: company
 x-source: harvest:absent-parent
@@ -150,6 +165,10 @@ apis:
   humanURL: https://help.proofpoint.com/Essentials/Additional_Resources/API_Documentation/Essentials_Threat_API
   baseURL: https://us-siem.proofpointessentials.com/v2
   tags:
+  - SIEM
+  - Email Security
+  - Small Business
+  tags_raw:
   - SIEM
   - Email Security
   - SMB
