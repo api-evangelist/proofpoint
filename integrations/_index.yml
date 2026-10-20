@@ -15,6 +15,102 @@
   relationship: platform-app
   status: not-a-workflow
   arazzo: null
+- slug: proofpoint-google-workspace-own
+  label: Google Workspace (own)
+  partner: google-workspace
+  partner_name: Google Workspace (own)
+  category: Google Workspace app
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://workspace.google.com/marketplace/app/report_suspicious/939483390031
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: proofpoint-slack-own
+  label: Slack (own)
+  partner: slack
+  partner_name: Slack (own)
+  category: Slack app
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://slack.com/marketplace/ABREJFB9P-proofpoint-data-security
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: proofpoint-zoom-own
+  label: Zoom (own)
+  partner: zoom
+  partner_name: Zoom (own)
+  category: Zoom app
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://marketplace.zoom.us/apps/gKw1rrymRqKWq9qoG2SMRw
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: proofpoint-nuget-gallery
+  label: NuGet Gallery
+  partner: nuget
+  partner_name: NuGet Gallery
+  category: official SDK (.NET)
+  type: register
+  channel: package-registry
+  evidence: https://www.nuget.org/packages/Proofpoint.SecureEmailRelay.Mail
+  source: edge
+  relationship: distribution-channel
+  contract_reference:
+    register: NuGet Gallery (public registry JSON)
+    spec_file: null
+    language: .NET
+    packages:
+    - name: Proofpoint.SecureEmailRelay.Mail
+      version: 1.1.3
+      released: '2025-09-04'
+      released_field: published
+      lapsed: false
+      page: https://www.nuget.org/packages/Proofpoint.SecureEmailRelay.Mail
+      repo_leg: github-org:pfptcommunity
+      publisher_leg: org:pfptcommunity
+      matched_by: github-org
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  status: not-a-workflow
+  arazzo: null
+- slug: proofpoint-fivetran
+  label: Fivetran
+  partner: fivetran
+  partner_name: Fivetran
+  type: marketplace
+  marketplace: fivetran-connectors
+  channel: elt-connector
+  evidence: https://fivetran.com/docs/connectors/applications/proofpoint-security-awareness
+  source: edge
+  relationship: ipaas-bridge
+  contract_reference:
+    register: Fivetran connectors (fivetran.com/docs/connectors, docs-sitemap.xml + Partner-Built program)
+    spec_file: null
+    role: elt-connector:fivetran
+    registered_name: Proofpoint Security Awareness
+    matched_domain: proofpoint.com
+    matched_by: domain+name-among-holders
+    detected_by: sweep-data-integration.py
+    detected: '2026-10-18'
+    signal_note: one edge per (provider, platform); connectors, streams, packages and usage are context, never read
+    connector_paths:
+    - connectors/applications/proofpoint-security-awareness
+    vendor_link: https://www.proofpoint.com/us/products/security-awareness-training
+    builder: Fivetran
+  status: not-a-workflow
+  arazzo: null
 - slug: proofpoint-fedramp
   label: FedRAMP
   partner_name: FedRAMP
@@ -93,99 +189,33 @@
       latest_authorization: '2025-03-18'
   status: not-a-workflow
   arazzo: null
-- slug: proofpoint-fivetran
-  label: Fivetran
-  partner: fivetran
-  partner_name: Fivetran
-  type: marketplace
-  marketplace: fivetran-connectors
-  channel: elt-connector
-  evidence: https://fivetran.com/docs/connectors/applications/proofpoint-security-awareness
+- slug: proofpoint-cloud-security-alliance-star-registry
+  label: Cloud Security Alliance STAR Registry
+  partner_name: Cloud Security Alliance STAR Registry
+  category: Cloud security assurance
+  type: register
+  channel: standard-directory
+  evidence: https://cloudsecurityalliance.org/star/registry/proofpoint-inc/services/proofpoint-inc
   source: edge
-  relationship: ipaas-bridge
+  relationship: standard-participant
   contract_reference:
-    register: Fivetran connectors (fivetran.com/docs/connectors, docs-sitemap.xml + Partner-Built program)
+    register: CSA STAR Registry (cloudsecurityalliance.org/star/registry)
     spec_file: null
-    role: elt-connector:fivetran
-    registered_name: Proofpoint Security Awareness
+    standard: CSA STAR
+    role: star-level-1
+    registered_name: Proofpoint, Inc.
+    registry_id: proofpoint-inc
+    service_url: https://www.proofpoint.com
     matched_domain: proofpoint.com
     matched_by: domain+name-among-holders
-    detected_by: sweep-data-integration.py
-    detected: '2026-10-18'
-    signal_note: one edge per (provider, platform); connectors, streams, packages and usage are context, never read
-    connector_paths:
-    - connectors/applications/proofpoint-security-awareness
-    vendor_link: https://www.proofpoint.com/us/products/security-awareness-training
-    builder: Fivetran
-  status: not-a-workflow
-  arazzo: null
-- slug: proofpoint-google-workspace-own
-  label: Google Workspace (own)
-  partner: google-workspace
-  partner_name: Google Workspace (own)
-  category: Google Workspace app
-  type: marketplace
-  marketplace: own
-  channel: partner-built
-  evidence: https://workspace.google.com/marketplace/app/report_suspicious/939483390031
-  source: edge
-  relationship: platform-app
-  status: not-a-workflow
-  arazzo: null
-- slug: proofpoint-slack-own
-  label: Slack (own)
-  partner: slack
-  partner_name: Slack (own)
-  category: Slack app
-  type: marketplace
-  marketplace: own
-  channel: partner-built
-  evidence: https://slack.com/marketplace/ABREJFB9P-proofpoint-data-security
-  source: edge
-  relationship: platform-app
-  status: not-a-workflow
-  arazzo: null
-- slug: proofpoint-zoom-own
-  label: Zoom (own)
-  partner: zoom
-  partner_name: Zoom (own)
-  category: Zoom app
-  type: marketplace
-  marketplace: own
-  channel: partner-built
-  evidence: https://marketplace.zoom.us/apps/gKw1rrymRqKWq9qoG2SMRw
-  source: edge
-  relationship: platform-app
-  status: not-a-workflow
-  arazzo: null
-- slug: proofpoint-nuget-gallery
-  label: NuGet Gallery
-  partner: nuget
-  partner_name: NuGet Gallery
-  category: official SDK (.NET)
-  type: register
-  channel: package-registry
-  evidence: https://www.nuget.org/packages/Proofpoint.SecureEmailRelay.Mail
-  source: edge
-  relationship: distribution-channel
-  contract_reference:
-    register: NuGet Gallery (public registry JSON)
-    spec_file: null
-    language: .NET
-    packages:
-    - name: Proofpoint.SecureEmailRelay.Mail
-      version: 1.1.3
-      released: '2025-09-04'
-      released_field: published
-      lapsed: false
-      page: https://www.nuget.org/packages/Proofpoint.SecureEmailRelay.Mail
-      repo_leg: github-org:pfptcommunity
-      publisher_leg: org:pfptcommunity
-      matched_by: github-org
-    current: true
-    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
-      24 months'
-    detected_by: sweep-official-sdks.py
-    detected: '2026-10-18'
+    identity_source: the service URL the organisation filed on its STAR listing (no lookup)
+    levels:
+    - STAR Level 1
+    certified_products: []
+    signal_note: STAR Level 1 (CAIQ self-assessment) = participation; certified_products = one entry per STAR Level
+      2 / STAR for AI Level 2 assessment TYPE (third-party certification, attestation, C-STAR, ValidAIted); lapsed
+      = every instance marked (Deprecated) by the registry; service counts never recorded
+    detected_by: sweep-compliance-assurance.py
+    detected: '2026-10-20'
   status: not-a-workflow
   arazzo: null
